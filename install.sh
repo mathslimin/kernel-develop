@@ -5,6 +5,7 @@ set -x
 sudo apt-get install qemu libncurses5-dev build-essential
 sudo apt-get install gcc-arm-linux-gnueabi 
 sudo apt-get install gcc-aarch64-linux-gnu
+sudo apt-get install net-tools
 
 qemu-system-aarch64 -version
 

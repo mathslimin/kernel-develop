@@ -24,9 +24,9 @@ if [ "${arch}" = "arm" ];then
 	qemu-system-arm -M vexpress-a9 \
 		-smp 4 \
 		-m 1024m \
-		-kernel linux-4.0/arch/arm/boot/zImage \
+		-kernel linux-5-kernel/arch/arm/boot/zImage \
 		-append "root=/dev/mmcblk0 rw console=ttyAMA0 loglevel=8" \
-		-dtb linux-4.0/arch/arm/boot/dts/vexpress-v2p-ca9.dtb \
+		-dtb linux-5-kernel/arch/arm/boot/dts/vexpress-v2p-ca9.dtb \
 		-sd rootfs/${arch}/rootfs.ext3 \
 		-nographic
 else
@@ -35,7 +35,7 @@ else
 		-machine type=virt \
 		-nographic -m 2048 \
 		-smp 2 \
-		-kernel linux-4.0/arch/arm64/boot/Image \
+		-kernel linux-5-kernel/arch/arm64/boot/Image \
 		-append "root=/dev/mmcblk0 rw console=ttyAMA0 loglevel=8  trace_event=sched:*,timer:*,irq:* trace_buf_size=40M" \
 		-sd rootfs/${arch}/rootfs.ext3
 fi

@@ -34,9 +34,9 @@ if [ "${arch}" = "arm" ];then
 	qemu-system-arm -M vexpress-a9 \
 		-smp 4 \
 		-m 1024m \
-		-kernel linux-4.0/arch/arm/boot/zImage \
+		-kernel linux-5-kernel/arch/arm/boot/zImage \
 		-append "console=ttyAMA0 loglevel=8 root=/dev/nfs rw nfsroot=${HOST_IP}:${NFS_ROOT}/arm/_install,nolock ip=${TARGET_IP}" \
-		-dtb linux-4.0/arch/arm/boot/dts/vexpress-v2p-ca9.dtb \
+		-dtb linux-5-kernel/arch/arm/boot/dts/vexpress-v2p-ca9.dtb \
 		-net nic -net tap,ifname=tap0,script=no \
 		-nographic
 else
@@ -45,7 +45,7 @@ else
 		-machine type=virt \
 		-nographic -m 2048 \
 		-smp 2 \
-		-kernel linux-4.0/arch/arm64/boot/Image \
+		-kernel linux-5-kernel/arch/arm64/boot/Image \
 		-append "console=ttyAMA0 loglevel=8 root=/dev/nfs rw nfsroot=${HOST_IP}:${NFS_ROOT}/arm64/_install,nolock ip=${TARGET_IP}:${HOST_IP}:::::off::" \
 		-netdev tap,id=tap0,ifname=tap0,script=no \
 		-device virtio-net-device,netdev=tap0
