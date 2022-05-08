@@ -1,10 +1,13 @@
 #!/bin/bash
+source ./global.sh
+set -e
+set -x
 
 arch=$1
 if [ "${arch}" = "" ];then
 	arch=arm64
 fi
-
+ROOTDIR=`pwd`
 HOST_IP=192.168.1.1
 TARGET_IP=192.168.1.101
 NET_NUMBER=192.168.1.0
@@ -30,13 +33,15 @@ if [ x${TAP} = x ];then
 	sudo sh -c "echo 1 > /proc/sys/net/ipv4/ip_forward"
 fi
 
+cd ${ROOTDIR}/linux-5-kernel
+
 if [ "${arch}" = "arm" ];then
 	qemu-system-arm -M vexpress-a9 \
 		-smp 4 \
 		-m 1024m \
-		-kernel linux-5-kernel/arch/arm/boot/zImage \
+		-kernel arch/arm/boot/zImage \
 		-append "console=ttyAMA0 loglevel=8 root=/dev/nfs rw nfsroot=${HOST_IP}:${NFS_ROOT}/arm/_install,nolock ip=${TARGET_IP}" \
-		-dtb linux-5-kernel/arch/arm/boot/dts/vexpress-v2p-ca9.dtb \
+		-dtb arch/arm/boot/dts/vexpress-v2p-ca9.dtb \
 		-net nic -net tap,ifname=tap0,script=no \
 		-nographic
 else
@@ -45,7 +50,7 @@ else
 		-machine type=virt \
 		-nographic -m 2048 \
 		-smp 2 \
-		-kernel linux-5-kernel/arch/arm64/boot/Image \
+		-kernel arch/arm64/boot/Image \
 		-append "console=ttyAMA0 loglevel=8 root=/dev/nfs rw nfsroot=${HOST_IP}:${NFS_ROOT}/arm64/_install,nolock ip=${TARGET_IP}:${HOST_IP}:::::off::" \
 		-netdev tap,id=tap0,ifname=tap0,script=no \
 		-device virtio-net-device,netdev=tap0
