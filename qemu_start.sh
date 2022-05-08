@@ -55,7 +55,8 @@ else
 		-m 2G \
 		-smp 2 \
 		-kernel arch/x86/boot/bzImage \
-		-append "console=ttyS0 root=/dev/sda rw earlyprintk=serial net.ifnames=0" \ #必须root用/dev/sda否则会报错，rw表示可以读写
+		#必须root用/dev/sda否则会报错，rw表示可以读写
+		-append "console=ttyS0 root=/dev/sda rw earlyprintk=serial net.ifnames=0" \
 		-drive file=$IMAGE_DIR/${arch}/initramfs.cpio.gz,format=raw \
 		-net user,host=10.0.2.10,hostfwd=tcp:127.0.0.1:10021-:22 \
 		-net nic,model=e1000 \
