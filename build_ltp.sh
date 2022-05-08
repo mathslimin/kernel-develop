@@ -4,8 +4,6 @@ set -e
 set -x
 source ./global.sh
 
-#TOP_DIR=`pwd`
-#WORK_DIR=$TOP_DIR/build
 function usage() {
     echo ""
     echo "usage:"

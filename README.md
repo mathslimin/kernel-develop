@@ -4,7 +4,8 @@ This is an develop test environment for linux kernel using QEMU virtual machine.
 ```
 wget https://mirrors.tuna.tsinghua.edu.cn/kernel/v5.x/linux-5.10.113.tar.gz
 tar zxvf linux-5.*.tar.gz
-mv linux-5.10.113 linux-5-kernel
+mv linux-5.10.113 linux-kernel
+
 wget https://www.busybox.net/downloads/busybox-1.35.0.tar.bz2
 tar zvf busybox-1.35.0.tar.bz2
 ```

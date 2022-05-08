@@ -33,7 +33,7 @@ if [ x${TAP} = x ];then
 	sudo sh -c "echo 1 > /proc/sys/net/ipv4/ip_forward"
 fi
 
-cd ${ROOTDIR}/linux-5-kernel
+cd ${ROOTDIR}/linux-kernel
 
 if [ "${arch}" = "arm" ];then
 	qemu-system-arm -M vexpress-a9 \

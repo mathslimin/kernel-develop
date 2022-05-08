@@ -9,8 +9,7 @@ build_arm64() {
 	export CROSS_COMPILE=aarch64-linux-gnu-
 	cp ../configs/arch/arm64/configs/qemu_defconfig arch/arm64/configs/
 	make $1 
-	#make -j$(nproc)
-	make bzImage -j$(nproc)
+	make -j$(nproc)
 }
 
 build_arm() {
@@ -39,7 +38,7 @@ build_x86_64() {
 #main entry
 
 arch=$1
-cd linux-5-kernel
+cd linux-kernel
 if [ -e arch/arm64/boot/Image -a "${arch}" != "arm64" ]; then
 	echo "arch/arm64/boot/Image exist, make distclean"
 	rm arch/arm64/boot/Image -f

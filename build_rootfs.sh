@@ -4,27 +4,10 @@ set -x
 source ./global.sh
 
 arch=$1
-#TOP_DIR=`pwd`
-#WORK_DIR=$TOP_DIR/build
 sudo rm -r -f $WORK_DIR/rootfs
 mkdir -p $WORK_DIR/rootfs
-# ./build_busybox.sh $arch
-
-# if [ $? != 0 ]; then
-# 	echo "Busybox Build Error!!"
-# 	exit 1
-# fi
 
 echo current dir:`pwd`
-
-# if [ "$arch" = "arm64" ]; then
-# 	cp -r ${WORK_DIR}/busybox/arm64/_install $WORK_DIR/rootfs/arm64
-# elif [ "$arch" = "arm" ]; then
-# 	cp -r ${WORK_DIR}/busybox/arm/_install $WORK_DIR/rootfs/arm
-# else
-# 	cp -r ${WORK_DIR}/busybox/x86_64/_install $WORK_DIR/rootfs/x86_64
-# fi
-
 cp -r ${WORK_DIR}/busybox/$arch/_install $WORK_DIR/rootfs/$arch
 
 cd $WORK_DIR/rootfs/$arch
