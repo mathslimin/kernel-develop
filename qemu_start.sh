@@ -28,8 +28,10 @@ elif [ "${arch}" = "arm64" ];then
 		-smp 2 \
 		-m 1024m \
 		-kernel arch/arm64/boot/Image \
-		-append "root=/dev/mmcblk0 rw console=ttyAMA0 loglevel=8  trace_event=sched:*,timer:*,irq:* trace_buf_size=40M" \
-		-sd $WORK_DIR/images/${arch}/rootfs.ext3 \
+		-append "console=ttyS0 root=/dev/sda rw earlyprintk=serial net.ifnames=0" \
+		-drive file=$WORK_DIR/images/${arch}/rootfs.ext3,format=raw \
+		-net user,host=10.0.2.10,hostfwd=tcp:127.0.0.1:10021-:22 \
+		-net nic,model=e1000 \
 		-nographic
 else
 	# 必须root用/dev/sda否则会报错，rw表示可以读写
