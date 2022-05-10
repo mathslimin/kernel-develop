@@ -16,37 +16,31 @@ if [ 0 = $# ]; then
     exit
 fi
 
-arch=$1
+export arch=$1
 
 if [ "${arch}" = "" ]; then
     arch=arm64
 fi
-mkdir -p ${WORK_DIR}
-cd ltp
+mkdir -p ${BUILD_DIR}
+rm -r -f ${BUILD_DIR}/ltp
+cd src/ltp
 make clean
 make distclean
 make autotools
 #./configure CC=arm-linux-gnueabi-gcc --build=i686-pc-linux-gnu --target=arm-linux --host=arm-linux  CFLAGS="-static" LDFLAGS="-static  -pthread"
 if [ "${arch}" = "arm" ]; then
-    echo "arm"
-    export ARCH=arm
-    export CC=arm-linux-gnueabi-gcc
-    ./configure --prefix=${WORK_DIR}/ltp CC=arm-linux-gnueabi-gcc --host=arm-linux-gnueabi
-    make
+    toolchain_arm
+    ./configure --prefix=${BUILD_DIR}/ltp CC=${GCC_PATH} --host=${TARGET}
+    make -j$(nproc)
     make install
 elif [ "${arch}" = "arm64" ]; then
-    echo "arm64"
-    export ARCH=arm64
-	export CC=aarch64-linux-gnu-gcc
-    ./configure --prefix=${WORK_DIR}/ltp CC=aarch64-linux-gnu-gcc --host=aarch64-linux-gnu
-    make
+    toolchain_arm64
+    ./configure --prefix=${BUILD_DIR}/ltp CC=${GCC_PATH} --host=${TARGET}
+    make -j$(nproc)
     make install
 else
-    echo "x86_64"
-    export ARCH=x86_64
-	export CC=gcc
-    ./configure --prefix=${WORK_DIR}/ltp CC=gcc --host=x86_64-linux-gnu
-    make
+    toolchain_x86_64
+    ./configure --prefix=${BUILD_DIR}/ltp CC=${GCC_PATH} --host=${TARGET}
+    make -j$(nproc)
     make install
 fi
-
