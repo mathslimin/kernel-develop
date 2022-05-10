@@ -1,0 +1,8 @@
+.DS_Store
+.idea
+*.log
+tmp/
+host_key
+host_key.pub
+client
+sshd_server
