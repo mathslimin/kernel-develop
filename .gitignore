@@ -2,14 +2,10 @@ rootfs
 .vscode
 *.idea
 *.o
-linux-4.*
-linux-5.*
-linux-5-*
-linux-kernel
 *.tar.gz
 *.tar.bz2
-busybox-1.35.0
-ltp
 build
 install
 tmp
+*.img
+src
