@@ -3,31 +3,25 @@ set -e
 set -x
 source ./global.sh
 build_arm64() {
-	echo "start to build ARM64 $1 modules"
-	export ARCH=arm64
-	export CROSS_COMPILE=aarch64-linux-gnu-
+	toolchain_arm64
     make M=$SRC_DIR/modules/$1 modules SUBDIRS=$SRC_DIR/modules/$2
     echo "make modules $2 succeed..."
 }
 
 build_arm() {
-	echo "start to build ARM $1 kernel image!!"
-	export ARCH=arm
-	export CROSS_COMPILE=arm-linux-gnueabi-
+	toolchain_arm
     make M=$SRC_DIR/modules/$1 modules SUBDIRS=$SRC_DIR/modules/$2
     echo "make modules $2 succeed..."
 }
 
 build_x86_64() {
-	echo "start to build x86_64 $1 kernel image!!"
-	export ARCH=x86_64
-	export CC=gcc
+	toolchain_x86_64
     make M=$SRC_DIR/modules/$1 modules SUBDIRS=$SRC_DIR/modules/$2
     echo "make modules $2 succeed..."
 }
 
-arch=$1
-cd $SRC_DIR/linux-kernel
+export arch=$1
+cd $SRC_DIR/linux-next
 case ${arch} in
 	arm64)
 		build_arm64 $2
