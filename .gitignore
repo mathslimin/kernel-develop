@@ -6,6 +6,7 @@ rootfs
 *.tar.bz2
 build
 install
+output
 tmp
 *.img
 src
