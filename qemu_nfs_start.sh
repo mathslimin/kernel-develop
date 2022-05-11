@@ -3,8 +3,8 @@ source ./global.sh
 set -e
 set -x
 
-arch=$1
-if [ "${arch}" = "" ];then
+PLATFORM=$1
+if [ "${PLATFORM}" = "" ];then
 	arch=arm64
 fi
 ROOTDIR=`pwd`
@@ -21,7 +21,7 @@ if [ ! -e /etc/exports.bak ];then
 	sudo cp /etc/exports /etc/exports.bak
 fi
 
-sudo echo "${NFS_ROOT}/${arch}/_install *(rw,sync,no_subtree_check,no_root_squash)" > /etc/exports
+sudo echo "${NFS_ROOT}/${PLATFORM}/_install *(rw,sync,no_subtree_check,no_root_squash)" > /etc/exports
 sudo /etc/init.d/nfs-kernel-server restart
 
 TAP=$(ifconfig tap0 | head -n 1 | awk '{print $1}')
@@ -33,9 +33,9 @@ if [ x${TAP} = x ];then
 	sudo sh -c "echo 1 > /proc/sys/net/ipv4/ip_forward"
 fi
 
-cd ${ROOTDIR}/linux-kernel
+cd ${ROOTDIR}/linux-next
 
-if [ "${arch}" = "arm" ];then
+if [ "${PLATFORM}" = "arm" ];then
 	qemu-system-arm -M vexpress-a9 \
 		-smp 4 \
 		-m 1024m \
