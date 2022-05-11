@@ -3,6 +3,7 @@ set -e
 set -x
 
 sudo apt-get install -y qemu libncurses5-dev build-essential
+sudo apt-get install qemu-system-arm
 #sudo apt-get install -y gcc-arm-linux-gnueabi 
 #sudo apt-get install -y gcc-aarch64-linux-gnu
 sudo apt-get install -y net-tools

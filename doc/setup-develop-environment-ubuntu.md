@@ -1,3 +1,40 @@
+# install
+```
+./install.sh
+```
+It will install compile tools chains of arm and arm64, and qemu environment.
+
+## toolchain install
+
+```shell
+wget https://mirrors.nju.edu.cn/armbian-releases/_toolchain/gcc-arm-9.2-2019.12-x86_64-arm-none-linux-gnueabihf.tar.xz
+sudo tar xvf gcc-arm-9.2-2019.12-x86_64-arm-none-linux-gnueabihf.tar.xz -C /opt/buildtools
+```
+
+- **environment variables set**
+
+  `sudo vim /etc/profile`
+
+  add `PATH=$PATH:/opt/buildtools/gcc-arm-9.2-2019.12-x86_64-arm-none-linux-gnueabihf/bin` at tail
+
+- **test toolchain**
+
+  ```shell
+  source /etc/profile`
+  arm-none-linux-gnueabihf-gcc --version
+  ```
+
+  if output as below, succeed:
+
+  > arm-none-linux-gnueabihf-gcc (GNU Toolchain for the A-profile Architecture 9.2-2019.12 (arm-9.10)) 9.2.1 20191025
+
+## arch64-linux-gnu
+```shell
+wget https://publishing-ie-linaro-org.s3.amazonaws.com/releases/components/toolchain/binaries/latest-7/aarch64-linux-gnu/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu.tar.xz
+or wget https://mirrors.nju.edu.cn/armbian-releases/_toolchain/gcc-linaro-7.4.1-2019.02-x86_64_arm-linux-gnueabihf.tar.xz
+sudo tar xvf gcc-linaro-*-x86_64_aarch64-linux-gnu.tar.xz -C /opt/buildtools
+```
+add /path/gcc-linaro-xxx-x86_64_aarch64-linux-gnu/bin to $PATH
 ## Crosstool
 ```shell
 sudo apt install libtool-bin
@@ -7,7 +44,7 @@ wget https://github.com/crosstool-ng/crosstool-ng/archive/crosstool-ng-1.25.0.ta
 tar xf crosstool-ng-1.25.0.tar.bz2
 cd crosstool-ng-1.25.0
 ./bootstrap
-./configure --enable-local --prefix=/opt/buildtools/crosstool-ng-1.25.0
+./configure --enable-local
 make
 test -x ct-ng || echo "ctng setup unsuccessful"
 ./ct-ng x86_64-unknown-linux-gnu
@@ -18,7 +55,6 @@ export PATH=$PATH:$HOME/x-tools/x86_64-unknown-linux-gnu/bin/
 cd ..
 ```
 
-sudo apt-get install qemu-system-arm
 
 2.主机的ssh工具要安装
 
@@ -47,9 +83,7 @@ ssh -p 2222 root@127.0.0.1
 
 即可。
 
- 
-
-我在第6部，花了1天时间都没有连上，各种尝试，最后仔细发现arm端内部ip需要设置为10.0.2.15.或者使用dhcpc命令分配。为什么是这样，可以参考qemu的文档
+arm端内部ip需要设置为10.0.2.15.或者使用dhcpc命令分配。为什么是这样，可以参考qemu的文档
 
 ifconfig eth0 10.0.2.15
 

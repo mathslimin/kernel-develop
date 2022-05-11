@@ -10,3 +10,4 @@ output
 tmp
 *.img
 src
+linux-kernel
