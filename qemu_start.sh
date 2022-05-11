@@ -2,44 +2,56 @@
 set -e
 set -x
 source ./global.sh
-export arch=$1
-
-ROOTDIR=$(pwd)
-
-if [ "${arch}" = "" ]; then
-        arch=arm64
+function usage() {
+    echo ""
+    echo "usage:"
+    echo "  ./build_ltp.sh arm"
+    echo ""
+    exit 1
+}
+if [ 0 = $# ]; then
+    usage
+    exit
 fi
 
-cd linux-next
+export PLATFORM=$1
 
-if [ "${arch}" = "arm" ]; then
+if [ "${PLATFORM}" = "" ]; then
+    usage
+fi
+
+cd $SRC_DIR/linux-next
+
+if [ "${PLATFORM}" = "arm" ]; then
         qemu-system-arm -M vexpress-a9 \
                 -smp 2 \
                 -m 1024m \
                 -kernel arch/arm/boot/zImage \
                 -append "root=/dev/mmcblk0 rw console=ttyAMA0 loglevel=8" \
                 -dtb ${SRC_LINUX}/arch/arm/boot/dts/vexpress-v2p-ca9.dtb \
-                -sd $IMAGE_DIR/rootfs_busybox_${arch}.img \
+                -sd $IMAGE_DIR/rootfs_busybox_${PLATFORM}.img \
                 -nographic
-elif [ "${arch}" = "arm64" ]; then
+elif [ "${PLATFORM}" = "aarch64" ]; then
         qemu-system-aarch64 \
                 -M virt \
                 -cpu cortex-a57 \
                 -smp 8 \
                 -m 4096M \
                 -kernel ${SRC_LINUX}/arch/arm64/boot/Image \
-                -hda $IMAGE_DIR/rootfs_busybox_${arch}.img \
+                -hda $IMAGE_DIR/rootfs_busybox_${PLATFORM}.img \
                 -append "root=/dev/vda rw printk.time=y" \
+                -net nic \
+                -net user,hostfwd=tcp::2222-:22 \
                 -nographic
-else
+elif [ "${PLATFORM}" = "x86_64" ]; then
         # 必须root用/dev/sda否则会报错，rw表示可以读写
-        sudo qemu-system-x86_64 \
+        qemu-system-x86_64 \
                 -smp 8 \
                 -m 4096M \
                 -kernel ${SRC_LINUX}/arch/x86/boot/bzImage \
-                -drive file=$IMAGE_DIR/rootfs_busybox_${arch}.img,format=raw \
+                -drive file=$IMAGE_DIR/rootfs_busybox_${PLATFORM}.img,format=raw \
                 -append "console=ttyS0 printk.time=y root=/dev/sda rw" \
-                -net nic -net user,hostfwd=tcp::10021-:2022 \
+                -net nic -net user,hostfwd=tcp::10021-:22 \
                 -nographic
 
         # qemu-system-x86_64 \
@@ -60,4 +72,7 @@ else
         #         -net user,host=10.0.2.10,hostfwd=tcp:127.0.0.1:10021-:22 \
         #         -net nic,model=e1000 \
         #         -nographic
+else
+        echo "no platform"
+        exit 1
 fi
