@@ -2,21 +2,40 @@
 set -e
 set -x
 source ./global.sh
+function usage() {
+    echo ""
+    echo "usage:"
+    echo "  ./build_ltp.sh arm"
+    echo ""
+    exit 1
+}
+if [ 0 = $# ]; then
+    usage
+    exit
+fi
 
-export arch=$1
+export PLATFORM=$1
+
+if [ "${PLATFORM}" = "" ]; then
+    usage
+fi
+if [ -d $IMAGE_DIR ] ; then
+	sudo rm -rfv $IMAGE_DIR
+fi
+mkdir -p $IMAGE_DIR
 cd $IMAGE_DIR
 if [ -d rootfs ]; then
     sudo umount rootfs >/dev/null 2>&1 &
     sleep 10
     sudo rm -r -f rootfs
 fi
-sudo rm -f $IMAGE_DIR/rootfs_busybox_$arch.img
+sudo rm -f $IMAGE_DIR/rootfs_busybox_$PLATFORM.img
 echo current dir:$(pwd)
 
-dd if=/dev/zero of=rootfs_busybox_$arch.img bs=1M count=2048
-mkfs.ext4 rootfs_busybox_$arch.img
+dd if=/dev/zero of=rootfs_busybox_$PLATFORM.img bs=1M count=2048
+mkfs.ext4 rootfs_busybox_$PLATFORM.img
 mkdir rootfs/
-sudo mount -t ext4 -o loop rootfs_busybox_$arch.img rootfs
+sudo mount -t ext4 -o loop rootfs_busybox_$PLATFORM.img rootfs
 sudo cp $ROOTFS/* rootfs/ -raf
 sudo mkdir -p rootfs/dev/
 sudo mkdir -p rootfs/etc/
@@ -37,75 +56,78 @@ if [ -f "${TOP_DIR}/examples/helloworld" ]; then
 fi
 
 #添加交叉编译环境
-if [ "$arch" = "arm64" ]; then
+if [ "$PLATFORM" = "aarch64" ]; then
     #sudo cp -arf $GCC_AARCH64_PATH/aarch64-linux-gnu/libc/lib/* rootfs/lib/
     pushd ${TOP_DIR}/go
     bash init.sh
     bash ./build.sh arm64
-    sudo cp sshd_server ${BUILD_DIR}/rootfs/opt/bin/
-    sudo cp host_key* ${BUILD_DIR}/rootfs/opt/bin/
+    sudo cp sshd_server ${IMAGE_DIR}/rootfs/opt/bin/
+    sudo cp host_key* ${IMAGE_DIR}/rootfs/opt/bin/
     popd
-elif [ "$arch" = "arm" ]; then
+elif [ "$PLATFORM" = "arm" ]; then
     #sudo cp -arf $GCC_ARM_PATH/arm-none-linux-gnueabihf/libc/lib/* rootfs/lib/
     pushd ${TOP_DIR}/go
     bash init.sh
     bash ./build.sh arm
-    sudo cp sshd_server ${BUILD_DIR}/rootfs/opt/bin/
-    sudo cp host_key* ${BUILD_DIR}/rootfs/opt/bin/
+    sudo cp sshd_server ${IMAGE_DIR}/rootfs/opt/bin/
+    sudo cp host_key* ${IMAGE_DIR}/rootfs/opt/bin/
     popd
-elif [ "$arch" = "x86_64" ]; then
+elif [ "$PLATFORM" = "x86_64" ]; then
     #sudo cp $GCC_X86_PATH/x86_64-unknown-linux-gnu/sysroot/lib/*so* rootfs/lib/
     #sudo cp $GCC_X86_PATH/x86_64-unknown-linux-gnu/sysroot/lib64/*so* rootfs/lib64/
     #sudo cp -arf $GCC_X86_PATH/lib64/* rootfs/lib64/
     pushd ${TOP_DIR}/go
     bash init.sh
     bash ./build.sh amd64
-    sudo cp sshd_server ${BUILD_DIR}/rootfs/opt/bin/
-    sudo cp client ${BUILD_DIR}/rootfs/opt/bin/
-    sudo cp host_key* ${BUILD_DIR}/rootfs/opt/bin/
+    sudo cp sshd_server ${IMAGE_DIR}/rootfs/opt/bin/
+    sudo cp client ${IMAGE_DIR}/rootfs/opt/bin/
+    sudo cp host_key* ${IMAGE_DIR}/rootfs/opt/bin/
     popd
 fi
-sudo mkdir -p rootfs/etc/rc.d
-sudo touch rootfs/etc/rc.d/rc.local
-#sudo sed -i '$a/opt/bin/sshd_server &>/dev/null &' rootfs/etc/rc.d/rc.local
-sudo bash -c "cat>rootfs/etc/rc.d/rc.local<<EOF
-# start scripts
-/opt/bin/sshd_server &>/tmp/sshd_server.log &
-EOF"
+# sudo mkdir -p rootfs/etc/rc.d
+# sudo touch rootfs/etc/rc.d/rc.local
+# #sudo sed -i '$a/opt/bin/sshd_server &>/dev/null &' rootfs/etc/rc.d/rc.local
+# sudo bash -c "cat>rootfs/etc/rc.d/rc.local<<EOF
+# # start scripts
+# /opt/bin/sshd_server &>/tmp/sshd_server.log &
+# EOF"
 
-sudo bash -c "cat>rootfs/etc/fstab<<EOF
-proc            /proc              proc    defaults    0   0
-tmpfs           /tmp               tmpfs   defaults    0   0
-sysfs           /sys               sysfs   defaults    0   0
-debugfs         /sys/kernel/debug  debugfs defaults    0   0
-EOF"
-sudo bash -c "cat>rootfs/etc/inittab<<EOF
-::sysinit:/etc/init.d/rcS
-::respawn:-/bin/sh
-tty2::askfirst:-/bin/sh
-::ctrlaltdel:/bin/umount -a -r
-EOF"
-sudo bash -c "cat>rootfs/etc/profile<<EOF
-# /etc/profile: system-wide .profile file for the Bourne shells
+# sudo bash -c "cat>rootfs/etc/fstab<<EOF
+# proc            /proc              proc    defaults    0   0
+# tmpfs           /tmp               tmpfs   defaults    0   0
+# sysfs           /sys               sysfs   defaults    0   0
+# debugfs         /sys/kernel/debug  debugfs defaults    0   0
+# EOF"
+# sudo bash -c "cat>rootfs/etc/inittab<<EOF
+# ::sysinit:/etc/init.d/rcS
+# ::respawn:-/bin/sh
+# tty2::askfirst:-/bin/sh
+# ::ctrlaltdel:/bin/umount -a -r
+# EOF"
+# sudo bash -c "cat>rootfs/etc/profile<<EOF
+# # /etc/profile: system-wide .profile file for the Bourne shells
 
-echo
-# no-op
-echo
-EOF"
-sudo bash -c "cat>rootfs/etc/init.d/rcS<<EOF
-#! /bin/sh
+# echo
+# # no-op
+# echo
+# EOF"
+# sudo bash -c "cat>rootfs/etc/init.d/rcS<<EOF
+# #! /bin/sh
 
-/bin/mount -a
+# /bin/mount -a
 
-mount -t tmpfs cgroup_root /sys/fs/cgroup
-mkdir /sys/fs/cgroup/cpuset
-mount -t cgroup -o cpuset cgroup /sys/fs/cgroup/cpuset
-mkdir /sys/fs/cgroup/cpu,cpuacct
-mount -t cgroup -o cpu,cpuacct cgroup /sys/fs/cgroup/cpu,cpuacct
-touch /tmp/hello.txt
-chmod a+x /etc/rc.d/rc.local
-/etc/rc.d/rc.local
-EOF"
-sudo chmod 777 rootfs/etc/init.d/rcS
+# mount -t tmpfs cgroup_root /sys/fs/cgroup
+# mkdir /sys/fs/cgroup/cpuset
+# mount -t cgroup -o cpuset cgroup /sys/fs/cgroup/cpuset
+# mkdir /sys/fs/cgroup/cpu,cpuacct
+# mount -t cgroup -o cpu,cpuacct cgroup /sys/fs/cgroup/cpu,cpuacct
+# touch /tmp/hello.txt
+# chmod a+x /etc/rc.d/rc.local
+# /etc/rc.d/rc.local
+# EOF"
+# sudo chmod 777 rootfs/etc/init.d/rcS
+echo "Prepare Rootfs"
+#sudo cp -rf $TOP_DIR/configs/rootfs.template/* rootfs/
+sudo cp -r rootfs runing_rootfs
 sudo umount rootfs
 echo "Build rootfs success!!"
