@@ -3,6 +3,8 @@
 set -e
 set -x
 source ./global.sh
+# default compile
+#./configure CC=arm-linux-gnueabi-gcc --build=i686-pc-linux-gnu --target=arm-linux --host=arm-linux  CFLAGS="-static" LDFLAGS="-static  -pthread"
 
 function usage() {
     echo ""
@@ -16,10 +18,10 @@ if [ 0 = $# ]; then
     exit
 fi
 
-export arch=$1
+export PLATFORM=$1
 
-if [ "${arch}" = "" ]; then
-    arch=arm64
+if [ "${PLATFORM}" = "" ]; then
+    usage
 fi
 mkdir -p ${BUILD_DIR}
 rm -r -f ${BUILD_DIR}/ltp
@@ -27,20 +29,19 @@ cd src/ltp
 make clean
 make distclean
 make autotools
-#./configure CC=arm-linux-gnueabi-gcc --build=i686-pc-linux-gnu --target=arm-linux --host=arm-linux  CFLAGS="-static" LDFLAGS="-static  -pthread"
-if [ "${arch}" = "arm" ]; then
+if [ "${PLATFORM}" = "arm" ]; then
     toolchain_arm
-    ./configure --prefix=${BUILD_DIR}/ltp CC=${GCC_PATH} --host=${TARGET}
+    ./configure --prefix=${BUILD_DIR}/ltp CC=${GCC_PATH} --host=${TARGET_HOST}
     make -j$(nproc)
     make install
-elif [ "${arch}" = "arm64" ]; then
-    toolchain_arm64
-    ./configure --prefix=${BUILD_DIR}/ltp CC=${GCC_PATH} --host=${TARGET}
+elif [ "${PLATFORM}" = "aarch64" ]; then
+    toolchain_aarch64
+    ./configure --prefix=${BUILD_DIR}/ltp CC=${GCC_PATH} --host=${TARGET_HOST}
     make -j$(nproc)
     make install
 else
     toolchain_x86_64
-    ./configure --prefix=${BUILD_DIR}/ltp CC=${GCC_PATH} --host=${TARGET}
+    ./configure --prefix=${BUILD_DIR}/ltp CC=${GCC_PATH} --host=${TARGET_HOST}
     make -j$(nproc)
     make install
 fi
