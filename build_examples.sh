@@ -2,9 +2,29 @@
 set -e
 #set -x
 source ./global.sh
+function usage() {
+    echo ""
+    echo "usage:"
+    echo "  ./build_ltp.sh arm"
+    echo ""
+    exit 1
+}
+if [ 0 = $# ]; then
+    usage
+    exit
+fi
 
-build_arm64() {
-	toolchain_arm64
+export PLATFORM=$1
+
+if [ "${PLATFORM}" = "" ]; then
+    usage
+fi
+toolchain_${PLATFORM}
+export CC=${GCC_PATH}
+export CXX=${CXX_PATH}
+
+build_aarch64() {
+	toolchain_aarch64
 	make
 }
 
@@ -19,13 +39,12 @@ build_x86_64() {
 }
 
 #main entry
-export arch=$1
 cd examples
 pwd
 make clean
-case ${arch} in
-	arm64)
-		build_arm64
+case ${PLATFORM} in
+	aarch64)
+		build_aarch64
 		;;
 	arm)
 		build_arm
