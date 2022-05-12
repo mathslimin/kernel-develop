@@ -14,3 +14,15 @@ mkdir -p /dev/pts
 
 echo "Mounting pts"
 mount -t devpts devpts /dev/pts
+
+mount -t tmpfs cgroup_root /sys/fs/cgroup
+mkdir /sys/fs/cgroup/cpuset
+mount -t cgroup -o cpuset cgroup /sys/fs/cgroup/cpuset
+mkdir /sys/fs/cgroup/cpu,cpuacct
+mount -t cgroup -o cpu,cpuacct cgroup /sys/fs/cgroup/cpu,cpuacct
+
+ifconfig eth0 10.0.2.15
+ifconfig eth0 up
+
+mount -t debugfs none /sys/kernel/debug
+chmod 777 /sys/kernel/debug/kcov
