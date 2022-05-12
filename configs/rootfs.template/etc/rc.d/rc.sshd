@@ -33,10 +33,5 @@ if [ -z "" ] ; then
     fi ;
 fi ;
 
-chown -R root.root /var/empty
-chmod 744 /var/empty
-mkdir -p /var/log
 
-#/usr/sbin/sshd >/var/log/sshd.log 2&>1 &
-/usr/sbin/sshd
-/opt/bin/http_server &
+/usr/sbin/sshd >/var/log/sshd.log 2&>1 &
