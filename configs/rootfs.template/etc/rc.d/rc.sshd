@@ -36,6 +36,7 @@ fi ;
 chown -R root.root /var/empty
 chmod 744 /var/empty
 mkdir -p /var/log
-ifconfig eth0 10.0.2.15
-ifconfig eth0 up
-/usr/sbin/sshd >/var/log/sshd.log 2&>1 &
+
+#/usr/sbin/sshd >/var/log/sshd.log 2&>1 &
+/usr/sbin/sshd
+/opt/bin/http_server &
