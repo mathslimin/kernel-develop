@@ -2,25 +2,15 @@
 set -e
 set -x
 source ./global.sh
-function usage() {
-    echo ""
-    echo "usage:"
-    echo "  ./build_ltp.sh arm"
-    echo ""
-    exit 1
-}
+
 if [ 0 = $# ]; then
     usage
     exit
 fi
 
 export PLATFORM=$1
-
-if [ "${PLATFORM}" = "" ]; then
-    usage
-fi
-if [ -d $IMAGE_DIR ] ; then
-	sudo rm -rfv $IMAGE_DIR
+if [ -d $IMAGE_DIR ]; then
+    sudo rm -rfv $IMAGE_DIR
 fi
 mkdir -p $IMAGE_DIR
 cd $IMAGE_DIR
@@ -47,6 +37,7 @@ sudo mkdir -p rootfs/lib
 sudo mkdir -p rootfs/lib64
 sudo mkdir -p rootfs/home/workspace
 sudo mkdir -p rootfs/opt/bin
+sudo mkdir -p rootfs/opt/conf
 if [ -d "${BUILD_DIR}/ltp" ]; then
     sudo cp -r ${BUILD_DIR}/ltp rootfs/opt/
 fi
@@ -61,16 +52,16 @@ if [ "$PLATFORM" = "aarch64" ]; then
     pushd ${TOP_DIR}/go
     bash init.sh
     bash ./build.sh arm64
-    sudo cp sshd_server ${IMAGE_DIR}/rootfs/opt/bin/
-    sudo cp host_key* ${IMAGE_DIR}/rootfs/opt/bin/
+    sudo cp bin/* ${IMAGE_DIR}/rootfs/opt/bin/
+    sudo cp host_key* ${IMAGE_DIR}/rootfs/opt/conf/
     popd
 elif [ "$PLATFORM" = "arm" ]; then
     #sudo cp -arf $GCC_ARM_PATH/arm-none-linux-gnueabihf/libc/lib/* rootfs/lib/
     pushd ${TOP_DIR}/go
     bash init.sh
     bash ./build.sh arm
-    sudo cp sshd_server ${IMAGE_DIR}/rootfs/opt/bin/
-    sudo cp host_key* ${IMAGE_DIR}/rootfs/opt/bin/
+    sudo cp bin/* ${IMAGE_DIR}/rootfs/opt/bin/
+    sudo cp host_key* ${IMAGE_DIR}/rootfs/opt/conf/
     popd
 elif [ "$PLATFORM" = "x86_64" ]; then
     #sudo cp $GCC_X86_PATH/x86_64-unknown-linux-gnu/sysroot/lib/*so* rootfs/lib/
@@ -79,9 +70,10 @@ elif [ "$PLATFORM" = "x86_64" ]; then
     pushd ${TOP_DIR}/go
     bash init.sh
     bash ./build.sh amd64
-    sudo cp sshd_server ${IMAGE_DIR}/rootfs/opt/bin/
-    sudo cp client ${IMAGE_DIR}/rootfs/opt/bin/
-    sudo cp host_key* ${IMAGE_DIR}/rootfs/opt/bin/
+    sudo cp bin/* ${IMAGE_DIR}/rootfs/opt/bin/
+    #x86 openssh 编译会报错，用go版本的sshd
+    sudo cp bin/sshd_server ${IMAGE_DIR}/rootfs/usr/sbin/sshd
+    sudo cp host_key* ${IMAGE_DIR}/rootfs/opt/conf/
     popd
 fi
 # sudo mkdir -p rootfs/etc/rc.d
@@ -127,7 +119,8 @@ fi
 # EOF"
 # sudo chmod 777 rootfs/etc/init.d/rcS
 echo "Prepare Rootfs"
-#sudo cp -rf $TOP_DIR/configs/rootfs.template/* rootfs/
-sudo cp -r rootfs runing_rootfs
+sudo cp -rvf $TOP_DIR/configs/rootfs.template/* rootfs/
+sudo chmod a+x rootfs/etc/rc.d/*
+sudo cp -r rootfs img_rootfs
 sudo umount rootfs
 echo "Build rootfs success!!"
