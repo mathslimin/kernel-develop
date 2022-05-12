@@ -2,6 +2,14 @@
 set -e
 set -x
 source ./global.sh
+#main entry
+
+export PLATFORM=$1
+if [ 0 = $# ]; then
+    usage
+    exit
+fi
+
 build_aarch64() {
 	toolchain_aarch64
 	export CC=${GCC_PATH}
@@ -23,7 +31,6 @@ build_x86_64() {
     echo "make modules $2 succeed..."
 }
 
-export PLATFORM=$1
 cd $SRC_DIR/linux-next
 case ${PLATFORM} in
 	aarch64)
