@@ -44,28 +44,16 @@ This build will invoke build_busybox.sh to generate busybox bin for rootfs.
 ```
 ./qemu_stop.sh aarch64
 ```
+# ssh host
+```
+ssh -p 10022 root@127.0.0.1
+```
 
 # docs
 https://ops.tips/notes/booting-linux-on-qemu/
 
 https://github.com/google/syzkaller/blob/master/docs/linux/setup_linux-host_qemu-vm_arm64-kernel.md
 
-issue, you need to add the ‘sshd’ user on the server.
-Edit the file /etc/passwd and add the below line:
-sshd:x:74:74:Privilege-separated SSH:/var/empty/sshd:/sbin/nologin
-and the below line in the /etc/group file
-sshd:x:74:
-You will now be able to restart the sshd service.
-# /etc/init.d/sshd restart
-Stopping sshd: [ OK ]
-Starting sshd: [ OK ]
-Another solution is to disable UsePrivilegeSeparation. E
+either you can use dropbear is arm ssh server,
 
-chown -R root.root /var/empty
-chmod 744 /var/empty
-
-编译dropbear,它是arm端的ssh server,
-
-ifconfig eth0 10.0.2.15
-ifconfig eth0 up
 
