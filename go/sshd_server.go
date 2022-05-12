@@ -36,28 +36,39 @@ var (
 func main() {
 	// An SSH server is represented by a ServerConfig, which holds
 	// certificate details and handles authentication of ServerConns.
-	// sshConfig := &ssh.ServerConfig{
-	// 	NoClientAuth: true,
-	// }
-
 	sshConfig := &ssh.ServerConfig{
-		//Define a function to run when a client attempts a password login
-		PasswordCallback: func(c ssh.ConnMetadata, pass []byte) (*ssh.Permissions, error) {
-			// Should use constant-time compare (or better, salt+hash) in a production setting.
-			if c.User() == "develop" && string(pass) == "password" {
-				return nil, nil
-			}
-			return nil, fmt.Errorf("password rejected for %q", c.User())
-		},
-		// You may also explicitly allow anonymous client authentication, though anon bash
-		// sessions may not be a wise idea
-		// NoClientAuth: true,
+		NoClientAuth: true,
 	}
 
+	// sshConfig := &ssh.ServerConfig{
+	// 	//Define a function to run when a client attempts a password login
+	// 	PasswordCallback: func(c ssh.ConnMetadata, pass []byte) (*ssh.Permissions, error) {
+	// 		// Should use constant-time compare (or better, salt+hash) in a production setting.
+	// 		if c.User() == "develop" && string(pass) == "password" {
+	// 			return nil, nil
+	// 		}
+	// 		return nil, fmt.Errorf("password rejected for %q", c.User())
+	// 	},
+	// 	// You may also explicitly allow anonymous client authentication, though anon bash
+	// 	// sessions may not be a wise idea
+	// 	// NoClientAuth: true,
+	// }
+
 	// You can generate a keypair with 'ssh-keygen -t rsa -C "test@example.com"'
-	privateBytes, err := ioutil.ReadFile("./host_key")
-	if err != nil {
-		log.Fatal("Failed to load private key (./host_key)")
+	var privateBytes []byte
+	var err error
+	if _, err := os.Stat("./host_key"); err == nil {
+		privateBytes, err = ioutil.ReadFile("./host_key")
+		if err != nil {
+			log.Fatal("Failed to load private key (./host_key)")
+		}
+	} else {
+		if _, err := os.Stat("/opt/conf/host_key"); err == nil {
+			privateBytes, err = ioutil.ReadFile("/opt/conf/host_key")
+			if err != nil {
+				log.Fatal("Failed to load private key (/opt/conf/host_key)")
+			}
+		}
 	}
 
 	private, err := ssh.ParsePrivateKey(privateBytes)
@@ -68,13 +79,13 @@ func main() {
 	sshConfig.AddHostKey(private)
 
 	// Once a ServerConfig has been configured, connections can be accepted.
-	listener, err := net.Listen("tcp4", ":2022")
+	listener, err := net.Listen("tcp4", ":22")
 	if err != nil {
-		log.Fatalf("failed to listen on *:2022")
+		log.Fatalf("failed to listen on *:22")
 	}
 
 	// Accept all connections
-	log.Printf("listening on %s", ":2022")
+	log.Printf("listening on %s", ":22")
 	for {
 		tcpConn, err := listener.Accept()
 		if err != nil {
@@ -120,7 +131,7 @@ func PtyRun(c *exec.Cmd, tty *os.File) (err error) {
 }
 
 func handleChannels(chans <-chan ssh.NewChannel) {
- 	// Service the incoming Channel channel.
+	// Service the incoming Channel channel.
 	for newChannel := range chans {
 		// Channels have a type, depending on the application level
 		// protocol intended. In the case of a shell, the type is
@@ -142,7 +153,7 @@ func handleChannels(chans <-chan ssh.NewChannel) {
 		// Create new pty
 		f, tty, err := pty.Open()
 		if err != nil {
-		log.Printf("could not start pty (%s)", err)
+			log.Printf("could not start pty (%s)", err)
 			continue
 		}
 
