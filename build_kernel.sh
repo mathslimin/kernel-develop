@@ -2,6 +2,13 @@
 set -e
 set -x
 source ./global.sh
+#main entry
+
+export PLATFORM=$1
+if [ 0 = $# ]; then
+    usage
+    exit
+fi
 
 build_aarch64() {
 	export ARCH=arm64
@@ -25,9 +32,6 @@ build_x86_64() {
 	make bzImage  -j$(nproc) CROSS_COMPILE=$CROSS_COMPILE
 }
 
-#main entry
-
-export PLATFORM=$1
 cd $SRC_DIR/linux-next
 if [ -e arch/arm64/boot/Image -a "${PLATFORM}" != "aarch64" ]; then
 	echo "arch/arm64/boot/Image exist, make distclean"
