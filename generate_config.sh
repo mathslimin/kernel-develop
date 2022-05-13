@@ -19,15 +19,20 @@ build_aarch64() {
 	sed -i "/CONFIG_LKDTM/aCONFIG_KASAN=y" .config
 	sed -i 's/^CONFIG_CMDLINE=\"\"/CONFIG_CMDLINE=\"console=ttyAMA0\"/1' .config
 	sed -i "/CONFIG_LKDTM/aCONFIG_KCOV_INSTRUMENT_ALL=y" .config
-	make menuconfig
+	#make menuconfig
+	make olddefconfig ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE
 }
 
 build_arm() {
 	export ARCH=arm
 	toolchain_arm
 	make mrproper
-	make defconfig CROSS_COMPILE=$CROSS_COMPILE
-	make menuconfig
+	#make defconfig CROSS_COMPILE=$CROSS_COMPILE
+	cp ${CONFIGS}/arch/arm/configs/qemu_defconfig .config
+	#sed -i "/CONFIG_KUNIT/aCONFIG_E1000=y" .config
+	#sed -i "/CONFIG_KUNIT/aCONFIG_E1000E=y" .config
+	#make menuconfig
+	make olddefconfig ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE
 }
 
 build_x86_64() {
@@ -41,7 +46,8 @@ build_x86_64() {
 	sed -i "/CONFIG_LKDTM/aCONFIG_KCOV_INSTRUMENT_ALL=y" .config
 	sed -i 's/^CONFIG_E1000=m/CONFIG_E1000=y/1' .config
 	sed -i 's/^CONFIG_E1000E=m/CONFIG_E1000E=y/1' .config
-	make menuconfig
+	#make menuconfig
+	make olddefconfig ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE
 }
 
 cd $SRC_DIR/linux-next
