@@ -1,41 +1,6 @@
 #!/bin/sh
 
-echo "mounting /proc"
-mount -t proc none /proc
-
-echo "mounting /sys"
-mount -t sysfs none /sys
-
-echo "Mounting /dev"
-mount -t tmpfs mdev /dev
-
-echo "Creating /dev/pts"
-mkdir -p /dev/pts
-
-echo "Mounting pts"
-mount -t devpts devpts /dev/pts
-
-mount -t tmpfs cgroup_root /sys/fs/cgroup
-mkdir /sys/fs/cgroup/cpuset
-mount -t cgroup -o cpuset cgroup /sys/fs/cgroup/cpuset
-mkdir /sys/fs/cgroup/cpu,cpuacct
-mount -t cgroup -o cpu,cpuacct cgroup /sys/fs/cgroup/cpu,cpuacct
-
-#ifconfig eth0 10.0.2.15
-#ifconfig eth0 up
-
- # Enable the localhost interface
-ifconfig lo up
-# Manually configure the eth0 interface. Note that QEMU has a built-in 
-# DHCP server that assigns addresses to the hosts starting from 10.0.2.15.
-ifconfig eth0 10.0.2.15 netmask 255.255.255.0
-route add default gw 10.0.2.1
-
-mount -t debugfs none /sys/kernel/debug
-chmod 777 /sys/kernel/debug/kcov
-
-chown -R root.root /var/empty
-chmod 744 /var/empty
-mkdir -p /var/log
-
-/opt/bin/http_server &
+echo "start http_server"
+cd /opt/bin && nohup /opt/bin/http_server &
+#cd /opt/bin/ && /opt/bin/http_server > http_server.log 2>&1 &
+echo "finish rc.local"
