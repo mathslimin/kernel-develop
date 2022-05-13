@@ -56,7 +56,7 @@ if [ "$PLATFORM" = "aarch64" ]; then
     #bash init.sh
     bash ./build.sh arm64
     sudo cp bin/* ${IMAGE_DIR}/rootfs/opt/bin/
-    sudo cp host_key* ${IMAGE_DIR}/rootfs/opt/conf/
+    #sudo cp host_key* ${IMAGE_DIR}/rootfs/opt/conf/
     popd
 elif [ "$PLATFORM" = "arm" ]; then
     #sudo cp -arf $GCC_ARM_PATH/arm-none-linux-gnueabihf/libc/lib/* rootfs/lib/
@@ -65,7 +65,7 @@ elif [ "$PLATFORM" = "arm" ]; then
     #bash init.sh
     bash ./build.sh arm
     sudo cp bin/* ${IMAGE_DIR}/rootfs/opt/bin/
-    sudo cp host_key* ${IMAGE_DIR}/rootfs/opt/conf/
+    #sudo cp host_key* ${IMAGE_DIR}/rootfs/opt/conf/
     popd
 elif [ "$PLATFORM" = "x86_64" ]; then
     #sudo cp $GCC_X86_PATH/x86_64-unknown-linux-gnu/sysroot/lib/*so* rootfs/lib/
@@ -77,7 +77,7 @@ elif [ "$PLATFORM" = "x86_64" ]; then
     sudo cp bin/* ${IMAGE_DIR}/rootfs/opt/bin/
     #x86 openssh 编译会报错，用go版本的sshd
     #sudo cp bin/sshd_server ${IMAGE_DIR}/rootfs/usr/sbin/sshd
-    sudo cp host_key* ${IMAGE_DIR}/rootfs/opt/conf/
+    #sudo cp host_key* ${IMAGE_DIR}/rootfs/opt/conf/
     popd
 fi
 # sudo mkdir -p rootfs/etc/rc.d
