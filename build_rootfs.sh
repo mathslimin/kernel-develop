@@ -2,6 +2,7 @@
 set -e
 set -x
 source ./global.sh
+alias cp='cp -i'
 
 if [ 0 = $# ]; then
     usage
@@ -12,6 +13,7 @@ export PLATFORM=$1
 if [ -d $IMAGE_DIR ]; then
     sudo rm -rfv $IMAGE_DIR
 fi
+toolchain_${PLATFORM}
 mkdir -p $IMAGE_DIR
 cd $IMAGE_DIR
 if [ -d rootfs ]; then
@@ -34,6 +36,7 @@ sudo mkdir -p rootfs/proc/
 sudo mkdir -p rootfs/sys/
 sudo mkdir -p rootfs/tmp/
 sudo mkdir -p rootfs/lib
+sudo mkdir -p rootfs/usr/lib
 sudo mkdir -p rootfs/lib64
 sudo mkdir -p rootfs/home/workspace
 sudo mkdir -p rootfs/opt/bin
@@ -50,15 +53,16 @@ fi
 if [ "$PLATFORM" = "aarch64" ]; then
     #sudo cp -arf $GCC_AARCH64_PATH/aarch64-linux-gnu/libc/lib/* rootfs/lib/
     pushd ${TOP_DIR}/go
-    bash init.sh
+    #bash init.sh
     bash ./build.sh arm64
     sudo cp bin/* ${IMAGE_DIR}/rootfs/opt/bin/
     sudo cp host_key* ${IMAGE_DIR}/rootfs/opt/conf/
     popd
 elif [ "$PLATFORM" = "arm" ]; then
     #sudo cp -arf $GCC_ARM_PATH/arm-none-linux-gnueabihf/libc/lib/* rootfs/lib/
+    # sudo cp -prv $($GCC_PATH -print-sysroot)/usr/lib/*so* rootfs/usr/lib/
     pushd ${TOP_DIR}/go
-    bash init.sh
+    #bash init.sh
     bash ./build.sh arm
     sudo cp bin/* ${IMAGE_DIR}/rootfs/opt/bin/
     sudo cp host_key* ${IMAGE_DIR}/rootfs/opt/conf/
@@ -68,11 +72,11 @@ elif [ "$PLATFORM" = "x86_64" ]; then
     #sudo cp $GCC_X86_PATH/x86_64-unknown-linux-gnu/sysroot/lib64/*so* rootfs/lib64/
     #sudo cp -arf $GCC_X86_PATH/lib64/* rootfs/lib64/
     pushd ${TOP_DIR}/go
-    bash init.sh
+    #bash init.sh
     bash ./build.sh amd64
     sudo cp bin/* ${IMAGE_DIR}/rootfs/opt/bin/
     #x86 openssh 编译会报错，用go版本的sshd
-    sudo cp bin/sshd_server ${IMAGE_DIR}/rootfs/usr/sbin/sshd
+    #sudo cp bin/sshd_server ${IMAGE_DIR}/rootfs/usr/sbin/sshd
     sudo cp host_key* ${IMAGE_DIR}/rootfs/opt/conf/
     popd
 fi
