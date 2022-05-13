@@ -13,14 +13,12 @@ fi
 build_aarch64() {
 	export ARCH=arm64
 	toolchain_aarch64
-	make olddefconfig ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE
 	make Image -j$(nproc) CROSS_COMPILE=$CROSS_COMPILE
 }
 
 build_arm() {
 	export ARCH=arm
 	toolchain_arm
-	make olddefconfig ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE
 	make bzImage -j$(nproc) CROSS_COMPILE=$CROSS_COMPILE
 	make dtbs CROSS_COMPILE=$CROSS_COMPILE
 }
@@ -28,7 +26,6 @@ build_arm() {
 build_x86_64() {
 	export ARCH=x86_64
 	toolchain_x86_64
-	make olddefconfig ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE
 	make bzImage  -j$(nproc) CROSS_COMPILE=$CROSS_COMPILE
 }
 
