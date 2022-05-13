@@ -19,7 +19,7 @@ if [ "${PLATFORM}" = "arm" ]; then
                 -append "root=/dev/mmcblk0 rw console=ttyAMA0 loglevel=8" \
                 -dtb ${SRC_LINUX}/arch/arm/boot/dts/vexpress-v2p-ca9.dtb \
                 -sd $IMAGE_DIR/rootfs_busybox_${PLATFORM}.img \
-                -net nic,model=e1000 \
+                -net nic \
                 -net user,host=10.0.2.10,hostfwd=tcp::10022-:22,hostfwd=tcp::18090-:8090 \
                 -nographic
 elif [ "${PLATFORM}" = "aarch64" ]; then
