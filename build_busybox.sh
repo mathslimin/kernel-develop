@@ -17,8 +17,6 @@ if [ 0 = $# ]; then
 fi
 
 toolchain_${PLATFORM}
-
-TOOLCHAIN=${CROSS_COMPILE}
 CROSS_CC=${TOOLCHAIN}gcc
 CROSS_CXX=${TOOLCHAIN}g++
 CROSS_NM=${TOOLCHAIN}nm
@@ -81,15 +79,21 @@ prepare_rootfs() {
     #cp -pr $TOP_DIR/configs/rootfs.template $ROOTFS >$LOG_ROOTFS 2>&1
 
     echo "Create directories"
-    mkdir -pv $ROOTFS/{proc,srv,sys,dev,var,root} >>$LOG_ROOTFS 2>&1
+    mkdir -pv $ROOTFS/{proc,srv,sys,dev,var,root,usr/lib,lib,lib64} >>$LOG_ROOTFS 2>&1
     echo "Install directories"
     install -dv -m 1777 $ROOTFS/tmp $ROOTFS/var/tmp >>$LOG_ROOTFS 2>&1
     echo "Copy system libs"
-    if [ -d $($GCC_PATH -print-sysroot)/lib ]; then
-        cp -prv $($GCC_PATH -print-sysroot)/lib $ROOTFS/ >>$LOG_ROOTFS 2>&1
-    fi
-    if [ -d $($GCC_PATH -print-sysroot)/lib64 ]; then
-        cp -prv $($GCC_PATH -print-sysroot)/lib64 $ROOTFS/ >>$LOG_ROOTFS 2>&1
+    if [ "$PLATFORM" = "aarch64" ]; then
+        echo "aarch64"
+        cp -prv $($GCC_PATH -print-sysroot)/lib/*so* $ROOTFS/lib/ >>$LOG_ROOTFS 2>&1
+    elif [ "$PLATFORM" = "arm" ]; then
+        echo "arm"
+        cp -prv $($GCC_PATH -print-sysroot)/lib/*so* $ROOTFS/lib/ >>$LOG_ROOTFS 2>&1
+        cp -prv $($GCC_PATH -print-sysroot)/usr/lib/*so* $ROOTFS/usr/lib/ >>$LOG_ROOTFS 2>&1
+    elif [ "$PLATFORM" = "x86_64" ]; then
+        echo "x86_64"
+        cp -prv $($GCC_PATH -print-sysroot)/lib/*so* $ROOTFS/lib/ >>$LOG_ROOTFS 2>&1
+        cp -prv $($GCC_PATH -print-sysroot)/lib64/*so* $ROOTFS/lib64 >>$LOG_ROOTFS 2>&1
     fi
 }
 
@@ -100,7 +104,6 @@ build_bash() {
         rm -rfv $BUILD_BASH >$LOG_BASH 2>&1
     fi
 
-    #mkdir -pv $BUILD_BASH >$LOG_BASH 2>&1
     cp -pr $SRC_BASH $BUILD_DIR >>$LOG_BASH 2>&1
 
     cd $BUILD_BASH
@@ -139,15 +142,21 @@ build_openssl() {
         echo "platform is null"
         exit 1
     fi
-    # CC=$CROSS_CC \
-    #     RANLIB=$CROSS_RANLIB \
-    #     AR=$CROSS_AR \
-    #     $SRC_OPENSSL/Configure $PLATFORM shared --prefix=$ROOTFS/usr >>$LOG_OPENSSL 2>&1
+    echo "CROSS_COMPILE:$CROSS_COMPILE"
     echo "CC:$CC"
-    CC=gcc \
-        RANLIB=ranlib \
-        AR=ar \
-        ./Configure $CONFIG_PLATFORM shared --prefix=$ROOTFS/usr -fPIC >>$LOG_OPENSSL 2>&1
+    mkdir -p $ROOTFS/usr/local/openssl
+    # CC=gcc \
+    #     RANLIB=ranlib \
+    #     AR=ar \
+    #     ./Configure $CONFIG_PLATFORM shared --prefix=$ROOTFS/usr/local/openssl >>$LOG_OPENSSL 2>&1
+    if [ "${PLATFORM}" = "x86_64" ]; then
+        ./config no-asm shared --prefix=$INSTALL_DIR/openssl --cross-compile-prefix=${CROSS_COMPILE_PREFIX} >>$LOG_OPENSSL 2>&1
+    else
+        CC=gcc \
+            RANLIB=ranlib \
+            AR=ar \
+            ./Configure $CONFIG_PLATFORM shared --prefix=$INSTALL_DIR/openssl >>$LOG_OPENSSL 2>&1
+    fi
     #./config no-asm shared --prefix=$ROOTFS/usr >>$LOG_OPENSSL 2>&1
 
     # if [ "${PLATFORM}" = "x86_64" ]; then
@@ -165,6 +174,12 @@ build_openssl() {
     make -j$(nproc) >>$LOG_OPENSSL 2>&1
     echo "Install $(basename $SRC_OPENSSL)"
     make install -j$(nproc) >>$LOG_OPENSSL 2>&1
+    if [ -d $INSTALL_DIR/openssl/lib ]; then
+        cp -r $INSTALL_DIR/openssl/lib/*so* $ROOTFS/lib/
+    fi
+    if [ -d $INSTALL_DIR/openssl/lib64 ]; then
+        cp -r $INSTALL_DIR/openssl/lib64/*so* $ROOTFS/lib64/
+    fi
 }
 
 build_openssh() {
@@ -179,20 +194,11 @@ build_openssh() {
 
     cd $BUILD_OPENSSH
     echo "Configure $(basename $SRC_OPENSSH)"
-    if [ "${PLATFORM}" = "x86_64" ]; then
-        echo "CC:$CC"
-         CC=$CROSS_CC \
-            AR=$CROSS_AR \
-            RANLIB=$CROSS_RANLIB \
-            STRIP=$CROSS_STRIP \
-            ./configure --prefix=/ --sysconfdir=/etc/ssh --exec-prefix=/usr --host=$TARGET_HOST --with-zlib=$ROOTFS/usr --with-ssl-dir=$ROOTFS/usr --disable-strip >>$LOG_OPENSSH 2>&1
-    else
-        CC=$CROSS_CC \
-            AR=$CROSS_AR \
-            RANLIB=$CROSS_RANLIB \
-            STRIP=$CROSS_STRIP \
-            ./configure --prefix=/ --sysconfdir=/etc/ssh --exec-prefix=/usr --host=$TARGET_HOST --with-zlib=$ROOTFS/usr --with-ssl-dir=$ROOTFS/usr --disable-strip >>$LOG_OPENSSH 2>&1
-    fi
+    CC=$CROSS_CC \
+        AR=$CROSS_AR \
+        RANLIB=$CROSS_RANLIB \
+        STRIP=$CROSS_STRIP \
+        ./configure --prefix=/ --sysconfdir=/etc/ssh --exec-prefix=/usr --host=$TARGET_HOST --with-zlib=$INSTALL_DIR/zlib --with-ssl-dir=$INSTALL_DIR/openssl --disable-strip >>$LOG_OPENSSH 2>&1
     echo "Build $(basename $SRC_OPENSSH)"
     make -j$(nproc) >>$LOG_OPENSSH 2>&1
     is_ok
@@ -212,13 +218,19 @@ build_zlib() {
     cp -prv $SRC_ZLIB $BUILD_DIR/ >$LOG_ZLIB 2>&1
     cd $BUILD_ZLIB
     echo "Configure $(basename $SRC_ZLIB)"
+    mkdir -p $ROOTFS/usr/local/zlib
     CC=$CROSS_CC \
         AR=$CROSS_AR \
-        ./configure --prefix=$ROOTFS/usr >>$LOG_ZLIB 2>&1
+        ./configure --prefix=$INSTALL_DIR/zlib >>$LOG_ZLIB 2>&1
     echo "Build $(basename $SRC_ZLIB)"
     make -j$(nproc) >>$LOG_ZLIB 2>&1
     echo "Install $(basename $SRC_ZLIB)"
     make install -j$(nproc) >>$LOG_ZLIB 2>&1
+    if [ "${PLATFORM}" = "x86_64" ]; then
+        cp -r $INSTALL_DIR/zlib/lib/* $ROOTFS/lib64/
+    else
+        cp -r $INSTALL_DIR/zlib/lib/* $ROOTFS/lib/
+    fi
 }
 
 main() {
