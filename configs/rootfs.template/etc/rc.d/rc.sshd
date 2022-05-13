@@ -33,5 +33,7 @@ if [ -z "" ] ; then
     fi ;
 fi ;
 
-
-/usr/sbin/sshd >/var/log/sshd.log 2&>1 &
+#cd /usr/sbin && nohup /usr/sbin/sshd 
+cd /usr/sbin &&/usr/sbin/sshd >/var/log/sshd.log 2>&1 &
+#/usr/sbin/sshd >/var/log/sshd.log 2&>1 &
+echo "finish start sshd"
