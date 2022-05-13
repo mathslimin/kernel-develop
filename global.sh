@@ -23,7 +23,9 @@ is_ok() {
 
 toolchain_aarch64() {
     export ARCH=arm64
-    export CROSS_COMPILE=$GCC_AARCH64_PATH/bin/aarch64-linux-gnu-
+    export TOOLCHAIN=$GCC_AARCH64_PATH/bin/aarch64-linux-gnu-
+    export CROSS_COMPILE=$TOOLCHAIN
+    export CROSS_COMPILE_PREFIX=aarch64-linux-gnu-
     export GCC_PATH=$GCC_AARCH64_PATH/bin/aarch64-linux-gnu-gcc
     export CXX_PATH=$GCC_AARCH64_PATH/bin/aarch64-linux-gnu-g++
     #export CC=${GCC_PATH}
@@ -33,7 +35,9 @@ toolchain_aarch64() {
 
 toolchain_arm() {
     export ARCH=arm
-    export CROSS_COMPILE=$GCC_ARM_PATH/bin/arm-none-linux-gnueabihf-
+    export TOOLCHAIN=$GCC_ARM_PATH/bin/arm-none-linux-gnueabihf-
+    export CROSS_COMPILE=$TOOLCHAIN
+    export CROSS_COMPILE_PREFIX=arm-none-linux-gnueabihf-
     export GCC_PATH=$GCC_ARM_PATH/bin/arm-none-linux-gnueabihf-gcc
     export CXX_PATH=$GCC_ARM_PATH/bin/arm-none-linux-gnueabihf-g++
     #export CC=${GCC_PATH}
@@ -43,7 +47,9 @@ toolchain_arm() {
 
 toolchain_x86_64() {
     export ARCH=x86_64
-    export CROSS_COMPILE=$GCC_X86_PATH/bin/x86_64-unknown-linux-gnu-
+    export TOOLCHAIN=$GCC_X86_PATH/bin/x86_64-unknown-linux-gnu-
+    export CROSS_COMPILE=$TOOLCHAIN
+    export CROSS_COMPILE_PREFIX=x86_64-unknown-linux-gnu-
     export GCC_PATH=$GCC_X86_PATH/bin/x86_64-unknown-linux-gnu-gcc
     export CXX_PATH=$GCC_X86_PATH/bin/x86_64-unknown-linux-gnu-g++
     #export CC=${GCC_PATH}
