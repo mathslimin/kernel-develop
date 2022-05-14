@@ -37,8 +37,9 @@ sudo tar xvf gcc-linaro-*-x86_64_aarch64-linux-gnu.tar.xz -C /opt/buildtools
 add /path/gcc-linaro-xxx-x86_64_aarch64-linux-gnu/bin to $PATH
 ## Crosstool
 ```shell
-sudo apt install libtool-bin
-sudo apt install help2man
+sudo apt install -y libtool-bin
+sudo apt install -y help2man
+sudo apt-get install -y texinfo
 
 wget https://github.com/crosstool-ng/crosstool-ng/archive/crosstool-ng-1.25.0.tar.bz2
 tar xf crosstool-ng-1.25.0.tar.bz2
