@@ -10,9 +10,10 @@ export SRC_LINUX=$SRC_DIR/linux-next
 export CONFIGS=$TOP_DIR/configs/
 
 #export GCC_AARCH64_PATH=/opt/buildtools/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu
-export GCC_AARCH64_PATH=/opt/buildtools/gcc-arm-x86_64-aarch64-none-linux-gnu
+export GCC_AARCH64_PATH=/opt/buildtools/gcc-aarch64-linux-gnu
+
 #export GCC_ARM_PATH=/opt/buildtools/gcc-arm-9.2-2019.12-x86_64-arm-none-linux-gnueabihf
-export GCC_ARM_PATH=/opt/buildtools/gcc-arm-none-linux-gnueabihf
+export GCC_ARM_PATH=/opt/buildtools/gcc-arm-none-linux-gnueabihf 
 export GCC_X86_PATH=/opt/buildtools/x-tools/x86_64-unknown-linux-gnu
 
 is_ok() {
@@ -23,7 +24,7 @@ is_ok() {
     echo OK
 }
 
-toolchain_aarch64() {
+toolchain_aarch64_xxx() {
     export ARCH=arm64
     export TOOLCHAIN=$GCC_AARCH64_PATH/bin/aarch64-none-linux-gnu-
     export CROSS_COMPILE=$TOOLCHAIN
@@ -35,7 +36,7 @@ toolchain_aarch64() {
     export TARGET_HOST=aarch64-none-linux-gnu
 }
 
-toolchain_aarch64_backup() {
+toolchain_aarch64() {
     export ARCH=arm64
     export TOOLCHAIN=$GCC_AARCH64_PATH/bin/aarch64-linux-gnu-
     export CROSS_COMPILE=$TOOLCHAIN

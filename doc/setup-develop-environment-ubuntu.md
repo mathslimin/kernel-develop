@@ -8,14 +8,15 @@ It will install compile tools chains of arm and arm64, and qemu environment.
 
 ```shell
 wget https://mirrors.nju.edu.cn/armbian-releases/_toolchain/gcc-arm-9.2-2019.12-x86_64-arm-none-linux-gnueabihf.tar.xz
-sudo tar xvf gcc-arm-9.2-2019.12-x86_64-arm-none-linux-gnueabihf.tar.xz -C /opt/buildtools
+sudo tar xf gcc-arm-9.2-2019.12-x86_64-arm-none-linux-gnueabihf.tar.xz
+mv gcc-arm-9.2-2019.12-x86_64-arm-none-linux-gnueabihf /opt/buildtools/gcc-arm-none-linux-gnueabihf
 ```
 
 - **environment variables set**
 
   `sudo vim /etc/profile`
 
-  add `PATH=$PATH:/opt/buildtools/gcc-arm-9.2-2019.12-x86_64-arm-none-linux-gnueabihf/bin` at tail
+  add `export GCC_AARCH64_PATH=/opt/buildtools/gcc-aarch64-none-linux-gnu` at tail
 
 - **test toolchain**
 
@@ -24,17 +25,16 @@ sudo tar xvf gcc-arm-9.2-2019.12-x86_64-arm-none-linux-gnueabihf.tar.xz -C /opt/
   arm-none-linux-gnueabihf-gcc --version
   ```
 
-  if output as below, succeed:
-
-  > arm-none-linux-gnueabihf-gcc (GNU Toolchain for the A-profile Architecture 9.2-2019.12 (arm-9.10)) 9.2.1 20191025
-
 ## arch64-linux-gnu
+download from https://releases.linaro.org/components/toolchain/binaries/latest-7/aarch64-linux-gnu/
+gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu.tar.xz
 ```shell
-wget https://publishing-ie-linaro-org.s3.amazonaws.com/releases/components/toolchain/binaries/latest-7/aarch64-linux-gnu/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu.tar.xz
-or wget https://mirrors.nju.edu.cn/armbian-releases/_toolchain/gcc-linaro-4.9.4-2017.01-x86_64_aarch64-linux-gnu.tar.xz
-sudo tar xvf gcc-linaro-*-x86_64_aarch64-linux-gnu.tar.xz -C /opt/buildtools
+#wget https://publishing-ie-linaro-org.s3.amazonaws.com/releases/components/toolchain/binaries/latest-7/aarch64-linux-gnu/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu.tar.xz
+sudo tar xvf gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu.tar.xz
+mv gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu gcc-aarch64-linux-gnu
+#add to /etc/profile
+export GCC_AARCH64_PATH=/opt/buildtools/gcc-aarch64-linux-gnu
 ```
-add /path/gcc-linaro-xxx-x86_64_aarch64-linux-gnu/bin to $PATH
 ## Crosstool
 ```shell
 sudo apt install -y libtool-bin

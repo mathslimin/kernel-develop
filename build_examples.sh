@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-#set -x
+set -x
 source ./global.sh
 if [ 0 = $# ]; then
     usage
@@ -14,23 +14,24 @@ export CXX=${CXX_PATH}
 
 build_aarch64() {
     toolchain_aarch64
-    make
+    make ${PLATFORM}
 }
 
 build_arm() {
     toolchain_arm
-    make
+    make ${PLATFORM}
 }
 
 build_x86_64() {
     toolchain_x86_64
-    make
+    make ${PLATFORM}
 }
 
 #main entry
 cd examples
 pwd
 make clean
+echo $CC
 case ${PLATFORM} in
     aarch64)
         build_aarch64
