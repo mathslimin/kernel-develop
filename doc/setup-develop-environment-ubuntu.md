@@ -40,6 +40,7 @@ add /path/gcc-linaro-xxx-x86_64_aarch64-linux-gnu/bin to $PATH
 sudo apt install -y libtool-bin
 sudo apt install -y help2man
 sudo apt-get install -y texinfo
+sidp apt-get install -y gawk
 
 wget https://github.com/crosstool-ng/crosstool-ng/archive/crosstool-ng-1.25.0.tar.bz2
 tar xf crosstool-ng-1.25.0.tar.bz2
