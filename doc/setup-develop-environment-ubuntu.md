@@ -31,7 +31,7 @@ sudo tar xvf gcc-arm-9.2-2019.12-x86_64-arm-none-linux-gnueabihf.tar.xz -C /opt/
 ## arch64-linux-gnu
 ```shell
 wget https://publishing-ie-linaro-org.s3.amazonaws.com/releases/components/toolchain/binaries/latest-7/aarch64-linux-gnu/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu.tar.xz
-or wget https://mirrors.nju.edu.cn/armbian-releases/_toolchain/gcc-linaro-7.4.1-2019.02-x86_64_arm-linux-gnueabihf.tar.xz
+or wget https://mirrors.nju.edu.cn/armbian-releases/_toolchain/gcc-linaro-4.9.4-2017.01-x86_64_aarch64-linux-gnu.tar.xz
 sudo tar xvf gcc-linaro-*-x86_64_aarch64-linux-gnu.tar.xz -C /opt/buildtools
 ```
 add /path/gcc-linaro-xxx-x86_64_aarch64-linux-gnu/bin to $PATH
