@@ -9,8 +9,10 @@ export IMAGE_DIR=$INSTALL_DIR/images
 export SRC_LINUX=$SRC_DIR/linux-next
 export CONFIGS=$TOP_DIR/configs/
 
-export GCC_AARCH64_PATH=/opt/buildtools/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu
-export GCC_ARM_PATH=/opt/buildtools/gcc-arm-9.2-2019.12-x86_64-arm-none-linux-gnueabihf
+#export GCC_AARCH64_PATH=/opt/buildtools/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu
+export GCC_AARCH64_PATH=/opt/buildtools/gcc-arm-x86_64-aarch64-none-linux-gnu
+#export GCC_ARM_PATH=/opt/buildtools/gcc-arm-9.2-2019.12-x86_64-arm-none-linux-gnueabihf
+export GCC_ARM_PATH=/opt/buildtools/gcc-arm-none-linux-gnueabihf
 export GCC_X86_PATH=/opt/buildtools/x-tools/x86_64-unknown-linux-gnu
 
 is_ok() {
@@ -23,6 +25,18 @@ is_ok() {
 
 toolchain_aarch64() {
     export ARCH=arm64
+    export TOOLCHAIN=$GCC_AARCH64_PATH/bin/aarch64-none-linux-gnu-
+    export CROSS_COMPILE=$TOOLCHAIN
+    export CROSS_COMPILE_PREFIX=aarch64-none-linux-gnu-
+    export GCC_PATH=$GCC_AARCH64_PATH/bin/aarch64-none-linux-gnu-gcc
+    export CXX_PATH=$GCC_AARCH64_PATH/bin/aarch64-none-linux-gnu-g++
+    #export CC=${GCC_PATH}
+    #export CXX=${CXX_PATH}
+    export TARGET_HOST=aarch64-none-linux-gnu
+}
+
+toolchain_aarch64_backup() {
+    export ARCH=arm64
     export TOOLCHAIN=$GCC_AARCH64_PATH/bin/aarch64-linux-gnu-
     export CROSS_COMPILE=$TOOLCHAIN
     export CROSS_COMPILE_PREFIX=aarch64-linux-gnu-
@@ -32,6 +46,7 @@ toolchain_aarch64() {
     #export CXX=${CXX_PATH}
     export TARGET_HOST=aarch64-linux-gnu
 }
+
 
 toolchain_arm() {
     export ARCH=arm
