@@ -54,6 +54,8 @@ https://ops.tips/notes/booting-linux-on-qemu/
 
 https://github.com/google/syzkaller/blob/master/docs/linux/setup_linux-host_qemu-vm_arm64-kernel.md
 
+download arm compiler toolchain https://developer.arm.com/downloads/-/gnu-a
+
 either you can use dropbear is arm ssh server,
 
 
