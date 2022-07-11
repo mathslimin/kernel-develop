@@ -10,23 +10,36 @@ if [ 0 = $# ]; then
     exit
 fi
 
+
 build_aarch64() {
 	export ARCH=arm64
 	toolchain_aarch64
-	make Image -j$(nproc) CROSS_COMPILE=$CROSS_COMPILE
+    merge_config
+    make olddefconfig ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE
+    make Image -j$(nproc) ARCH=${ARCH} CROSS_COMPILE=$CROSS_COMPILE LOCALVERSION=
+    make ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE modules LOCALVERSION= -j$(nproc)
+    make ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE INSTALL_MOD_STRIP=1 modules_install LOCALVERSION= INSTALL_MOD_PATH=${INSTALL_DIR}/aarch64 -j$(nproc)
 }
 
 build_arm() {
 	export ARCH=arm
 	toolchain_arm
-	make bzImage -j$(nproc) CROSS_COMPILE=$CROSS_COMPILE
-	make dtbs CROSS_COMPILE=$CROSS_COMPILE
+    merge_config
+    make olddefconfig ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE
+    make zImage -j$(nproc) ARCH=${ARCH} CROSS_COMPILE=$CROSS_COMPILE LOCALVERSION=
+    make ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE modules LOCALVERSION= -j$(nproc)
+    make ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE INSTALL_MOD_STRIP=1 modules_install LOCALVERSION= INSTALL_MOD_PATH=${INSTALL_DIR}/arm -j$(nproc)
+    make dtbs CROSS_COMPILE=$CROSS_COMPILE LOCALVERSION=
 }
 
 build_x86_64() {
 	export ARCH=x86_64
 	toolchain_x86_64
-	make bzImage  -j$(nproc) CROSS_COMPILE=$CROSS_COMPILE
+	merge_config
+    make olddefconfig ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE
+    make bzImage -j$(nproc) ARCH=${ARCH} CROSS_COMPILE=$CROSS_COMPILE LOCALVERSION=
+    make ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE modules LOCALVERSION= -j$(nproc)
+    make ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE INSTALL_MOD_STRIP=1 modules_install LOCALVERSION= INSTALL_MOD_PATH=${INSTALL_DIR}/x86_64 -j$(nproc)
 }
 
 cd $SRC_DIR/linux-next
