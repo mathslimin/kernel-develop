@@ -91,3 +91,4 @@ ifconfig eth0 10.0.2.15
 
 ifconfig eth0 up
 
+download buildroot compiler https://toolchains.bootlin.com/?ref=hackernoon.com
