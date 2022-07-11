@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-set -x
+#set -x
 source ./global.sh
 if [ 0 = $# ]; then
     usage

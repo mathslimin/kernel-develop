@@ -1,10 +1,8 @@
 #!/bin/bash
 
 set -e
-set -x
+#set -x
 source ./global.sh
-# default compile
-#./configure CC=arm-linux-gnueabi-gcc --build=i686-pc-linux-gnu --target=arm-linux --host=arm-linux  CFLAGS="-static" LDFLAGS="-static  -pthread"
 
 if [ 0 = $# ]; then
     usage
@@ -14,7 +12,7 @@ fi
 export PLATFORM=$1
 mkdir -p ${BUILD_DIR}
 rm -r -f ${BUILD_DIR}/ltp
-cd src/ltp
+cd ${SRC_DIR}/ltp
 make clean
 make distclean
 make autotools
@@ -30,7 +28,7 @@ elif [ "${PLATFORM}" = "aarch64" ]; then
     make install -j$(nproc)
 else
     toolchain_x86_64
-    ./configure --prefix=${BUILD_DIR}/ltp CC=${GCC_PATH} --host=${TARGET_HOST}
+    ./configure --prefix=${BUILD_DIR}/ltp CC=${GCC_PATH}
     make -j$(nproc)
     make install -j$(nproc)
 fi

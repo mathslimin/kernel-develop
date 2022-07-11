@@ -1,18 +1,17 @@
 #!/bin/bash
 export TOP_DIR=$(pwd)
-export SRC_DIR=$TOP_DIR/src
-export BUILD_DIR=$TOP_DIR/build
+export WORK_DIR=/home/data/workdir
+export SRC_DIR=${WORK_DIR}/src
+export BUILD_DIR=${WORK_DIR}/build
 export LOG_PATH=$BUILD_DIR/log
-export INSTALL_DIR=$TOP_DIR/output
+export INSTALL_DIR=${WORK_DIR}/output
 export ROOTFS=$INSTALL_DIR/rootfs
-export IMAGE_DIR=$INSTALL_DIR/images
-export SRC_LINUX=$SRC_DIR/linux-next
+export IMAGE_DIR=$WORK_DIR/images
+export KERNEL_DIR=$SRC_DIR/linux
 export CONFIGS=$TOP_DIR/configs/
 
-#export GCC_AARCH64_PATH=/opt/buildtools/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu
 export GCC_AARCH64_PATH=/opt/buildtools/gcc-aarch64-linux-gnu
 
-#export GCC_ARM_PATH=/opt/buildtools/gcc-arm-9.2-2019.12-x86_64-arm-none-linux-gnueabihf
 export GCC_ARM_PATH=/opt/buildtools/gcc-arm-none-linux-gnueabihf 
 export GCC_X86_PATH=/opt/buildtools/x-tools/x86_64-unknown-linux-gnu
 
@@ -24,18 +23,6 @@ is_ok() {
     echo OK
 }
 
-toolchain_aarch64_xxx() {
-    export ARCH=arm64
-    export TOOLCHAIN=$GCC_AARCH64_PATH/bin/aarch64-none-linux-gnu-
-    export CROSS_COMPILE=$TOOLCHAIN
-    export CROSS_COMPILE_PREFIX=aarch64-none-linux-gnu-
-    export GCC_PATH=$GCC_AARCH64_PATH/bin/aarch64-none-linux-gnu-gcc
-    export CXX_PATH=$GCC_AARCH64_PATH/bin/aarch64-none-linux-gnu-g++
-    #export CC=${GCC_PATH}
-    #export CXX=${CXX_PATH}
-    export TARGET_HOST=aarch64-none-linux-gnu
-}
-
 toolchain_aarch64() {
     export ARCH=arm64
     export TOOLCHAIN=$GCC_AARCH64_PATH/bin/aarch64-linux-gnu-
@@ -43,8 +30,6 @@ toolchain_aarch64() {
     export CROSS_COMPILE_PREFIX=aarch64-linux-gnu-
     export GCC_PATH=$GCC_AARCH64_PATH/bin/aarch64-linux-gnu-gcc
     export CXX_PATH=$GCC_AARCH64_PATH/bin/aarch64-linux-gnu-g++
-    #export CC=${GCC_PATH}
-    #export CXX=${CXX_PATH}
     export TARGET_HOST=aarch64-linux-gnu
 }
 
@@ -56,21 +41,15 @@ toolchain_arm() {
     export CROSS_COMPILE_PREFIX=arm-none-linux-gnueabihf-
     export GCC_PATH=$GCC_ARM_PATH/bin/arm-none-linux-gnueabihf-gcc
     export CXX_PATH=$GCC_ARM_PATH/bin/arm-none-linux-gnueabihf-g++
-    #export CC=${GCC_PATH}
-    #export CXX=${CXX_PATH}
     export TARGET_HOST=arm-none-linux-gnueabihf
 }
 
 toolchain_x86_64() {
     export ARCH=x86_64
-    export TOOLCHAIN=$GCC_X86_PATH/bin/x86_64-unknown-linux-gnu-
-    export CROSS_COMPILE=$TOOLCHAIN
-    export CROSS_COMPILE_PREFIX=x86_64-unknown-linux-gnu-
-    export GCC_PATH=$GCC_X86_PATH/bin/x86_64-unknown-linux-gnu-gcc
-    export CXX_PATH=$GCC_X86_PATH/bin/x86_64-unknown-linux-gnu-g++
-    #export CC=${GCC_PATH}
-    #export CXX=${CXX_PATH}
-    export TARGET_HOST=x86_64-unknown-linux-gnu
+    export TOOLCHAIN=x86_64-linux-gnu-
+    export GCC_PATH=${TOOLCHAIN}gcc
+    export CXX_PATH=${TOOLCHAIN}g++
+    export TARGET_HOST=x86_64-linux-gnu
 }
 
 log() {
@@ -130,7 +109,6 @@ function merge_config() {
         cat $KERNEL_DIR/my.config
         $KERNEL_DIR/scripts/kconfig/merge_config.sh -m -O $KERNEL_DIR $KERNEL_DIR/.config $KERNEL_DIR/my.config
     fi
-    $KERNEL_DIR/scripts/kconfig/merge_config.sh -m -O $KERNEL_DIR $KERNEL_DIR/.config $CONFIGS/myconfig/hulk_default.config
     make olddefconfig ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE
 }
 

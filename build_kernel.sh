@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-set -x
+#set -x
 source ./global.sh
 #main entry
 
@@ -12,9 +12,7 @@ fi
 
 
 build_aarch64() {
-	export ARCH=arm64
 	toolchain_aarch64
-    merge_config
     make olddefconfig ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE
     make Image -j$(nproc) ARCH=${ARCH} CROSS_COMPILE=$CROSS_COMPILE LOCALVERSION=
     make ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE modules LOCALVERSION= -j$(nproc)
@@ -22,9 +20,7 @@ build_aarch64() {
 }
 
 build_arm() {
-	export ARCH=arm
 	toolchain_arm
-    merge_config
     make olddefconfig ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE
     make zImage -j$(nproc) ARCH=${ARCH} CROSS_COMPILE=$CROSS_COMPILE LOCALVERSION=
     make ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE modules LOCALVERSION= -j$(nproc)
@@ -33,16 +29,14 @@ build_arm() {
 }
 
 build_x86_64() {
-	export ARCH=x86_64
 	toolchain_x86_64
-	merge_config
     make olddefconfig ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE
     make bzImage -j$(nproc) ARCH=${ARCH} CROSS_COMPILE=$CROSS_COMPILE LOCALVERSION=
     make ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE modules LOCALVERSION= -j$(nproc)
     make ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE INSTALL_MOD_STRIP=1 modules_install LOCALVERSION= INSTALL_MOD_PATH=${INSTALL_DIR}/x86_64 -j$(nproc)
 }
 
-cd $SRC_DIR/linux-next
+cd $KERNEL_DIR
 if [ -e arch/arm64/boot/Image -a "${PLATFORM}" != "aarch64" ]; then
 	echo "arch/arm64/boot/Image exist, make distclean"
 	make clean
@@ -82,6 +76,5 @@ case ${PLATFORM} in
 		echo "   ./build.sh aarch64     #build default  aarch64 config"
 		echo "   ./build.sh arm       #build default arm config"
 		echo "   ./build.sh x86_64       #build default arm config"
-		echo "   ./build.sh select    #select platform and config to build"
 		;;
 esac

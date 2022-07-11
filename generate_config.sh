@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-set -x
+#set -x
 source ./global.sh
 #main entry
 
@@ -10,47 +10,75 @@ if [ 0 = $# ]; then
     exit
 fi
 
+# build_aarch64() {
+# 	export ARCH=arm64
+# 	toolchain_aarch64
+# 	make mrproper
+# 	make defconfig CROSS_COMPILE=$CROSS_COMPILE
+# 	sed -i 's/^# CONFIG_KCOV is not set/CONFIG_KCOV=y/1' .config
+# 	sed -i "/CONFIG_LKDTM/aCONFIG_KASAN=y" .config
+# 	sed -i 's/^CONFIG_CMDLINE=\"\"/CONFIG_CMDLINE=\"console=ttyAMA0\"/1' .config
+# 	sed -i "/CONFIG_LKDTM/aCONFIG_KCOV_INSTRUMENT_ALL=y" .config
+# 	#make menuconfig
+# 	make olddefconfig ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE
+# }
+
+# build_arm() {
+# 	export ARCH=arm
+# 	toolchain_arm
+# 	make mrproper
+# 	#make defconfig CROSS_COMPILE=$CROSS_COMPILE
+# 	cp ${CONFIGS}/arch/arm/configs/qemu_defconfig .config
+# 	#sed -i "/CONFIG_KUNIT/aCONFIG_E1000=y" .config
+# 	#sed -i "/CONFIG_KUNIT/aCONFIG_E1000E=y" .config
+# 	#make menuconfig
+# 	make olddefconfig ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE
+# }
+
+# build_x86_64() {
+# 	export ARCH=x86_64
+# 	toolchain_x86_64
+# 	make mrproper
+# 	make x86_64_defconfig CROSS_COMPILE=$CROSS_COMPILE
+# 	sed -i 's/^# CONFIG_KCOV is not set/CONFIG_KCOV=y/1' .config
+# 	sed -i "/CONFIG_LKDTM/aCONFIG_KASAN=y" .config
+# 	sed -i 's/^CONFIG_CMDLINE=\"\"/CONFIG_CMDLINE=\"console=ttyAMA0\"/1' .config
+# 	sed -i "/CONFIG_LKDTM/aCONFIG_KCOV_INSTRUMENT_ALL=y" .config
+# 	sed -i 's/^CONFIG_E1000=m/CONFIG_E1000=y/1' .config
+# 	sed -i 's/^CONFIG_E1000E=m/CONFIG_E1000E=y/1' .config
+# 	#make menuconfig
+# 	make olddefconfig ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE
+# }
+
+
 build_aarch64() {
-	export ARCH=arm64
 	toolchain_aarch64
 	make mrproper
-	make defconfig CROSS_COMPILE=$CROSS_COMPILE
-	sed -i 's/^# CONFIG_KCOV is not set/CONFIG_KCOV=y/1' .config
-	sed -i "/CONFIG_LKDTM/aCONFIG_KASAN=y" .config
-	sed -i 's/^CONFIG_CMDLINE=\"\"/CONFIG_CMDLINE=\"console=ttyAMA0\"/1' .config
-	sed -i "/CONFIG_LKDTM/aCONFIG_KCOV_INSTRUMENT_ALL=y" .config
-	#make menuconfig
+	cp ${CONFIGS}/aarch64/qemu_defconfig .config
+	cp ${CONFIGS}/aarch64/my.config .
 	make olddefconfig ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE
+	merge_config
 }
 
 build_arm() {
-	export ARCH=arm
 	toolchain_arm
 	make mrproper
-	#make defconfig CROSS_COMPILE=$CROSS_COMPILE
-	cp ${CONFIGS}/arch/arm/configs/qemu_defconfig .config
-	#sed -i "/CONFIG_KUNIT/aCONFIG_E1000=y" .config
-	#sed -i "/CONFIG_KUNIT/aCONFIG_E1000E=y" .config
-	#make menuconfig
+	cp ${CONFIGS}/arm/qemu_defconfig .config
+	cp ${CONFIGS}/arm/my.config .
 	make olddefconfig ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE
+	merge_config
 }
 
 build_x86_64() {
-	export ARCH=x86_64
 	toolchain_x86_64
 	make mrproper
-	make x86_64_defconfig CROSS_COMPILE=$CROSS_COMPILE
-	sed -i 's/^# CONFIG_KCOV is not set/CONFIG_KCOV=y/1' .config
-	sed -i "/CONFIG_LKDTM/aCONFIG_KASAN=y" .config
-	sed -i 's/^CONFIG_CMDLINE=\"\"/CONFIG_CMDLINE=\"console=ttyAMA0\"/1' .config
-	sed -i "/CONFIG_LKDTM/aCONFIG_KCOV_INSTRUMENT_ALL=y" .config
-	sed -i 's/^CONFIG_E1000=m/CONFIG_E1000=y/1' .config
-	sed -i 's/^CONFIG_E1000E=m/CONFIG_E1000E=y/1' .config
-	#make menuconfig
+	make mrproper
+	cp ${CONFIGS}/arm/qemu_defconfig .config
+	cp ${CONFIGS}/arm/my.config .
 	make olddefconfig ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE
+	merge_config
 }
-
-cd $SRC_DIR/linux-next
+cd $KERNEL_DIR
 if [ -e arch/arm64/boot/Image -a "${PLATFORM}" != "aarch64" ]; then
 	echo "arch/arm64/boot/Image exist, make distclean"
 	rm -f arch/arm64/boot/Image
@@ -78,36 +106,6 @@ case ${PLATFORM} in
 	x86_64)
 		build_x86_64
 		;;
-	select)
-		echo "start to select config to build kernel image!!"
-		i=0
-		arch=($(ls arch/))
-		for file in ${arch[@]}; do
-			echo ${i}:${file##*/}
-			((i++))
-		done
-		echo please input your choice:
-		read index
-		target_arch=${arch[${index}]##*/}
-
-		i=0
-		configs=($(ls arch/${target_arch}/configs/*))
-		for file in ${configs[@]}; do
-			echo ${i}:${file##*/}
-			((i++))
-		done
-
-		echo please input your choice:
-		read index
-		target_config=${configs[${index}]##*/}
-		echo target is: ${target_arch} ${target_config}
-
-		if [ ${target_arch} = "arm64" ]; then
-			build_aarch64 ${target_config}
-		else
-			build_arm ${target_config}
-		fi
-		;;
 	*)
 		echo "usage:"
 		echo "./build.sh [platform]"
@@ -116,6 +114,5 @@ case ${PLATFORM} in
 		echo "   ./build.sh aarch64     #build default  aarch64 config"
 		echo "   ./build.sh arm       #build default arm config"
 		echo "   ./build.sh x86_64       #build default arm config"
-		echo "   ./build.sh select    #select platform and config to build"
 		;;
 esac

@@ -2,7 +2,7 @@
 set -e
 function help() {
     echo "usage: ./copy_to_rootfs.h ARCH machineName"
-    echo "example: ./copy_to_rootfs.h x86_64 linux-x86_64"
+    echo "example: ./copy_to_rootfs.h x86_64 buildroot-x86_64"
 }
 if [ 0 = $# ] || [ 1 = $# ]; then
     help
@@ -13,13 +13,12 @@ export MACHINE_NAME=$2
 source ./global.sh
 which guestmount || {
     echo "guestmount is not exist, sudo apt install libguestfs-tools"
-    sudo apt-get install -y libguestfs-tools
+    #sudo apt-get install -y libguestfs-tools
 }
 
-export IMAGE_DIR=${QEMU_HOME_DIR}/images/${MACHINE_NAME}
+export IMAGE_DIR=${IMAGE_DIR}/${MACHINE_NAME}
 cd $IMAGE_DIR
 
-sudo rm -r -f rootfs
 ROOTFS=${IMAGE_DIR}/rootfs
 mkdir -p rootfs
 sleep 3
@@ -45,8 +44,8 @@ if [ -f "${TOP_DIR}/examples/helloworld" ]; then
     sudo cp -r ${TOP_DIR}/examples/helloworld rootfs/opt/bin/
 fi
 if [ -d "${INSTALL_DIR}/lib" ]; then
-    sudo rm -f ${INSTALL_DIR}/lib/module/build
-    sudo rm -f ${INSTALL_DIR}/lib/module/source
+    sudo rm -f ${INSTALL_DIR}/lib/module/*/build
+    sudo rm -f ${INSTALL_DIR}/lib/module/*/source
     sudo rm -r -f rootfs/lib/modules
     sudo cp -r ${INSTALL_DIR}/lib/modules rootfs/lib/
 fi
@@ -54,8 +53,10 @@ TS=$(date '+%Y%m%d%H%M%S' | sed 's/-//g')
 echo $TS >rootfs/root/deploy.info
 if [ -f ${IMAGE_DIR}/rootfs.ext4 ]; then
     sudo umount rootfs
+    sudo rm -r -f rootfs
 elif [ -f ${IMAGE_DIR}/rootfs.qcow2 ]; then
     sudo guestunmount rootfs
+    sudo rm -r -f rootfs
 else
     echo "Error: rootfs not exists"
     exit 1
