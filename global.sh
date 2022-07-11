@@ -122,3 +122,15 @@ function usage() {
     echo ""
     exit 1
 }
+
+function merge_config() {
+    sed -i "s|CONFIG_LOCALVERSION_AUTO=.*|CONFIG_LOCALVERSION_AUTO=n|" .config
+    if [ -f $KERNEL_DIR/my.config ]; then
+        echo "merge config file"
+        cat $KERNEL_DIR/my.config
+        $KERNEL_DIR/scripts/kconfig/merge_config.sh -m -O $KERNEL_DIR $KERNEL_DIR/.config $KERNEL_DIR/my.config
+    fi
+    $KERNEL_DIR/scripts/kconfig/merge_config.sh -m -O $KERNEL_DIR $KERNEL_DIR/.config $CONFIGS/myconfig/hulk_default.config
+    make olddefconfig ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE
+}
+
