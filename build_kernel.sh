@@ -1,16 +1,20 @@
 #!/bin/bash
 set -e
-#set -x
-source ./global.sh
-#main entry
 
-export PLATFORM=$1
+function usage() {
+    echo ""
+    echo "usage:"
+    echo "  ./build_xxx.sh arm"
+    echo ""
+    exit 1
+}
+
 if [ 0 = $# ]; then
     usage
     exit
 fi
-
-
+export PLATFORM=$1
+source ./global.sh
 build_aarch64() {
 	toolchain_aarch64
     make olddefconfig ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE
@@ -28,12 +32,21 @@ build_arm() {
     make dtbs CROSS_COMPILE=$CROSS_COMPILE LOCALVERSION=
 }
 
-build_x86_64() {
-	toolchain_x86_64
+build_x86_64_cross_compile() {
+	toolchain_arm
     make olddefconfig ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE
     make bzImage -j$(nproc) ARCH=${ARCH} CROSS_COMPILE=$CROSS_COMPILE LOCALVERSION=
     make ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE modules LOCALVERSION= -j$(nproc)
-    make ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE INSTALL_MOD_STRIP=1 modules_install LOCALVERSION= INSTALL_MOD_PATH=${INSTALL_DIR}/x86_64 -j$(nproc)
+    make ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE INSTALL_MOD_STRIP=1 modules_install LOCALVERSION= INSTALL_MOD_PATH=${INSTALL_DIR}/arm -j$(nproc)
+    make dtbs CROSS_COMPILE=$CROSS_COMPILE LOCALVERSION=
+}
+
+build_x86_64() {
+	toolchain_x86_64
+    make olddefconfig ARCH=$ARCH CC=${GCC_PATH}
+    make bzImage -j$(nproc) ARCH=${ARCH} CC=${GCC_PATH} LOCALVERSION=
+    make ARCH=$ARCH CC=${GCC_PATH} modules LOCALVERSION= -j$(nproc)
+    make ARCH=$ARCH CC=${GCC_PATH} INSTALL_MOD_STRIP=1 modules_install LOCALVERSION= INSTALL_MOD_PATH=${INSTALL_DIR}/x86_64 -j$(nproc)
 }
 
 cd $KERNEL_DIR

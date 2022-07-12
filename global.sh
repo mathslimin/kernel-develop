@@ -6,8 +6,8 @@ export BUILD_DIR=${WORK_DIR}/build
 export LOG_PATH=$BUILD_DIR/log
 export INSTALL_DIR=${WORK_DIR}/output
 export ROOTFS=$INSTALL_DIR/rootfs
-export IMAGE_DIR=$WORK_DIR/images
-export KERNEL_DIR=$SRC_DIR/linux
+export KERNEL_DIR=$SRC_DIR/$PLATFORM/linux
+export IMAGE_DIR=/home/data/qemu
 export CONFIGS=$TOP_DIR/configs/
 
 export GCC_AARCH64_PATH=/opt/buildtools/gcc-aarch64-linux-gnu
@@ -25,23 +25,30 @@ is_ok() {
 
 toolchain_aarch64() {
     export ARCH=arm64
-    export TOOLCHAIN=$GCC_AARCH64_PATH/bin/aarch64-linux-gnu-
-    export CROSS_COMPILE=$TOOLCHAIN
-    export CROSS_COMPILE_PREFIX=aarch64-linux-gnu-
-    export GCC_PATH=$GCC_AARCH64_PATH/bin/aarch64-linux-gnu-gcc
-    export CXX_PATH=$GCC_AARCH64_PATH/bin/aarch64-linux-gnu-g++
-    export TARGET_HOST=aarch64-linux-gnu
+    export PATH=/opt/buildtools/gcc-aarch64/bin:$PATH
+    export CROSS_COMPILE=aarch64-none-linux-gnu-
+    export GCC_PATH=${CROSS_COMPILE}gcc
+    export CXX_PATH=${CROSS_COMPILE}g++
+    export TARGET_HOST=aarch64-none-linux-gnu
 }
 
 
 toolchain_arm() {
     export ARCH=arm
-    export TOOLCHAIN=$GCC_ARM_PATH/bin/arm-none-linux-gnueabihf-
-    export CROSS_COMPILE=$TOOLCHAIN
-    export CROSS_COMPILE_PREFIX=arm-none-linux-gnueabihf-
-    export GCC_PATH=$GCC_ARM_PATH/bin/arm-none-linux-gnueabihf-gcc
-    export CXX_PATH=$GCC_ARM_PATH/bin/arm-none-linux-gnueabihf-g++
+    export PATH=/opt/buildtools/gcc-arm/bin:$PATH
+    export CROSS_COMPILE=arm-none-linux-gnueabihf-
+    export GCC_PATH=${CROSS_COMPILE}gcc
+    export CXX_PATH=${CROSS_COMPILE}g++
     export TARGET_HOST=arm-none-linux-gnueabihf
+}
+
+toolchain_x86_64_cross_compile() {
+    export ARCH=x86_64
+    export PATH=/opt/buildtools/gcc-x86_64/bin:$PATH
+    export CROSS_COMPILE=x86_64-buildroot-linux-gnu-
+    export GCC_PATH=${CROSS_COMPILE}gcc
+    export CXX_PATH=${CROSS_COMPILE}g++
+    export TARGET_HOST=x86_64-buildroot-linux-gnu
 }
 
 toolchain_x86_64() {
@@ -94,14 +101,6 @@ turnError() {
     echo + "$@"
 }
 
-function usage() {
-    echo ""
-    echo "usage:"
-    echo "  ./build_xxx.sh arm"
-    echo ""
-    exit 1
-}
-
 function merge_config() {
     sed -i "s|CONFIG_LOCALVERSION_AUTO=.*|CONFIG_LOCALVERSION_AUTO=n|" .config
     if [ -f $KERNEL_DIR/my.config ]; then
@@ -109,6 +108,5 @@ function merge_config() {
         cat $KERNEL_DIR/my.config
         $KERNEL_DIR/scripts/kconfig/merge_config.sh -m -O $KERNEL_DIR $KERNEL_DIR/.config $KERNEL_DIR/my.config
     fi
-    make olddefconfig ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE
 }
 

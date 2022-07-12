@@ -1,8 +1,13 @@
 #!/bin/bash
 
 set -e
-#set -x
-source ./global.sh
+function usage() {
+    echo ""
+    echo "usage:"
+    echo "  ./build_xxx.sh arm"
+    echo ""
+    exit 1
+}
 
 if [ 0 = $# ]; then
     usage
@@ -10,6 +15,7 @@ if [ 0 = $# ]; then
 fi
 
 export PLATFORM=$1
+source ./global.sh
 mkdir -p ${BUILD_DIR}
 rm -r -f ${BUILD_DIR}/ltp
 cd ${SRC_DIR}/ltp

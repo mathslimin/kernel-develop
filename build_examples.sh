@@ -1,13 +1,21 @@
 #!/bin/bash
 set -e
-#set -x
-source ./global.sh
+
+function usage() {
+    echo ""
+    echo "usage:"
+    echo "  ./build_xxx.sh arm"
+    echo ""
+    exit 1
+}
+
 if [ 0 = $# ]; then
     usage
     exit
 fi
 
 export PLATFORM=$1
+source ./global.sh
 toolchain_${PLATFORM}
 export CC=${GCC_PATH}
 export CXX=${CXX_PATH}

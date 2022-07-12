@@ -1,14 +1,19 @@
 #!/bin/bash
 set -e
-#set -x
-source ./global.sh
-#main entry
+function usage() {
+    echo ""
+    echo "usage:"
+    echo "  ./build_xxx.sh arm"
+    echo ""
+    exit 1
+}
 
-export PLATFORM=$1
 if [ 0 = $# ]; then
     usage
     exit
 fi
+export PLATFORM=$1
+source ./global.sh
 
 build_aarch64() {
 	toolchain_aarch64

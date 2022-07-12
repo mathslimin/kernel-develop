@@ -1,63 +1,28 @@
 #!/bin/bash
 set -e
-#set -x
-source ./global.sh
-#main entry
 
-export PLATFORM=$1
+function usage() {
+    echo ""
+    echo "usage:"
+    echo "  ./generate_config.sh arm"
+    echo ""
+    exit 1
+}
+
 if [ 0 = $# ]; then
     usage
     exit
 fi
-
-# build_aarch64() {
-# 	export ARCH=arm64
-# 	toolchain_aarch64
-# 	make mrproper
-# 	make defconfig CROSS_COMPILE=$CROSS_COMPILE
-# 	sed -i 's/^# CONFIG_KCOV is not set/CONFIG_KCOV=y/1' .config
-# 	sed -i "/CONFIG_LKDTM/aCONFIG_KASAN=y" .config
-# 	sed -i 's/^CONFIG_CMDLINE=\"\"/CONFIG_CMDLINE=\"console=ttyAMA0\"/1' .config
-# 	sed -i "/CONFIG_LKDTM/aCONFIG_KCOV_INSTRUMENT_ALL=y" .config
-# 	#make menuconfig
-# 	make olddefconfig ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE
-# }
-
-# build_arm() {
-# 	export ARCH=arm
-# 	toolchain_arm
-# 	make mrproper
-# 	#make defconfig CROSS_COMPILE=$CROSS_COMPILE
-# 	cp ${CONFIGS}/arch/arm/configs/qemu_defconfig .config
-# 	#sed -i "/CONFIG_KUNIT/aCONFIG_E1000=y" .config
-# 	#sed -i "/CONFIG_KUNIT/aCONFIG_E1000E=y" .config
-# 	#make menuconfig
-# 	make olddefconfig ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE
-# }
-
-# build_x86_64() {
-# 	export ARCH=x86_64
-# 	toolchain_x86_64
-# 	make mrproper
-# 	make x86_64_defconfig CROSS_COMPILE=$CROSS_COMPILE
-# 	sed -i 's/^# CONFIG_KCOV is not set/CONFIG_KCOV=y/1' .config
-# 	sed -i "/CONFIG_LKDTM/aCONFIG_KASAN=y" .config
-# 	sed -i 's/^CONFIG_CMDLINE=\"\"/CONFIG_CMDLINE=\"console=ttyAMA0\"/1' .config
-# 	sed -i "/CONFIG_LKDTM/aCONFIG_KCOV_INSTRUMENT_ALL=y" .config
-# 	sed -i 's/^CONFIG_E1000=m/CONFIG_E1000=y/1' .config
-# 	sed -i 's/^CONFIG_E1000E=m/CONFIG_E1000E=y/1' .config
-# 	#make menuconfig
-# 	make olddefconfig ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE
-# }
-
+export PLATFORM=$1
+source ./global.sh
 
 build_aarch64() {
 	toolchain_aarch64
 	make mrproper
-	cp ${CONFIGS}/aarch64/qemu_defconfig .config
+	cp ${CONFIGS}/aarch64/linux.config .config
 	cp ${CONFIGS}/aarch64/my.config .
-	make olddefconfig ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE
 	merge_config
+	make olddefconfig ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE
 }
 
 build_arm() {
@@ -65,18 +30,18 @@ build_arm() {
 	make mrproper
 	cp ${CONFIGS}/arm/qemu_defconfig .config
 	cp ${CONFIGS}/arm/my.config .
-	make olddefconfig ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE
 	merge_config
+	make olddefconfig ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE
 }
 
 build_x86_64() {
 	toolchain_x86_64
 	make mrproper
-	make mrproper
-	cp ${CONFIGS}/arm/qemu_defconfig .config
-	cp ${CONFIGS}/arm/my.config .
-	make olddefconfig ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE
+	cp ${CONFIGS}/x86_64/linux.config .config
+	cp ${CONFIGS}/x86_64/my.config .
 	merge_config
+	make olddefconfig ARCH=$ARCH CC=${GCC_PATH}
+	#make olddefconfig ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE
 }
 cd $KERNEL_DIR
 if [ -e arch/arm64/boot/Image -a "${PLATFORM}" != "aarch64" ]; then

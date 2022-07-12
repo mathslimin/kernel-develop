@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 set -e
-function help() {
+function usage() {
     echo "usage: ./copy_to_rootfs.h ARCH machineName"
     echo "example: ./copy_to_rootfs.h x86_64 buildroot-x86_64"
 }
 if [ 0 = $# ] || [ 1 = $# ]; then
-    help
+    usage
     exit
 fi
 export PLATFORM=$1
