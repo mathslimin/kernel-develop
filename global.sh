@@ -10,10 +10,10 @@ export KERNEL_DIR=$SRC_DIR/$PLATFORM/linux
 export IMAGE_DIR=/home/data/qemu
 export CONFIGS=$TOP_DIR/configs/
 
-export GCC_AARCH64_PATH=/opt/buildtools/gcc-aarch64-linux-gnu
+# export GCC_AARCH64_PATH=/opt/buildtools/gcc-aarch64-linux-gnu
 
-export GCC_ARM_PATH=/opt/buildtools/gcc-arm-none-linux-gnueabihf 
-export GCC_X86_PATH=/opt/buildtools/x-tools/x86_64-unknown-linux-gnu
+# export GCC_ARM_PATH=/opt/buildtools/gcc-arm-none-linux-gnueabihf 
+# export GCC_X86_PATH=/opt/buildtools/x-tools/x86_64-unknown-linux-gnu
 
 is_ok() {
     if [ $? -ne 0 ]; then
@@ -51,12 +51,19 @@ toolchain_x86_64_cross_compile() {
     export TARGET_HOST=x86_64-buildroot-linux-gnu
 }
 
+# toolchain_x86_64() {
+#     export ARCH=x86_64
+#     export TOOLCHAIN=x86_64-linux-gnu-
+#     export GCC_PATH=${TOOLCHAIN}gcc
+#     export CXX_PATH=${TOOLCHAIN}g++
+#     export TARGET_HOST=x86_64-linux-gnu
+# }
+
 toolchain_x86_64() {
     export ARCH=x86_64
-    export TOOLCHAIN=x86_64-linux-gnu-
+    export TOOLCHAIN=
     export GCC_PATH=${TOOLCHAIN}gcc
     export CXX_PATH=${TOOLCHAIN}g++
-    export TARGET_HOST=x86_64-linux-gnu
 }
 
 log() {

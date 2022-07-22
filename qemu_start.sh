@@ -50,14 +50,6 @@ elif [ "${PLATFORM}" = "x86_64" ]; then
                 -net nic,model=e1000e \
                 -net user,host=10.0.2.10,hostfwd=tcp:127.0.0.1:10022-:22 \
                 -nographic
-        # qemu-system-x86_64 -smp 2 -m 1024M \
-        # -display none -nographic \
-        # -kernel /home/paas/workspace/buildroot/buildroot-x86_64/images/bzImage \
-        # -boot c \
-        # -hda $IMAGE_DIR/buildroot-x86_64/images/rootfs.ext4 \
-        # -device e1000,netdev=net0 \
-        # -netdev user,id=net0,host=10.0.2.1,hostfwd=tcp::10022-:22 \
-        # -append "console=ttyS0 root=/dev/sda rw"
 else
         echo "no platform"
         exit 1

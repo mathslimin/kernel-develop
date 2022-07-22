@@ -22,17 +22,17 @@ export CXX=${CXX_PATH}
 
 build_aarch64() {
     toolchain_aarch64
-    make ${PLATFORM}
+    make CC=${GCC_PATH}
 }
 
 build_arm() {
     toolchain_arm
-    make ${PLATFORM}
+    make CC=${GCC_PATH}
 }
 
 build_x86_64() {
     toolchain_x86_64
-    make ${PLATFORM}
+    make CC=${GCC_PATH}
 }
 
 #main entry

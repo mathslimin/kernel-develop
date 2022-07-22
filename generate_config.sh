@@ -41,7 +41,6 @@ build_x86_64() {
 	cp ${CONFIGS}/x86_64/my.config .
 	merge_config
 	make olddefconfig ARCH=$ARCH CC=${GCC_PATH}
-	#make olddefconfig ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE
 }
 cd $KERNEL_DIR
 if [ -e arch/arm64/boot/Image -a "${PLATFORM}" != "aarch64" ]; then

@@ -16,22 +16,22 @@ which guestmount || {
     #sudo apt-get install -y libguestfs-tools
 }
 
-export IMAGE_DIR=${IMAGE_DIR}/${MACHINE_NAME}
-cd $IMAGE_DIR
+export ROOTFS_DIR=${IMAGE_DIR}/${MACHINE_NAME}/images
+cd $ROOTFS_DIR
 
-ROOTFS=${IMAGE_DIR}/rootfs
+ROOTFS=${ROOTFS_DIR}/rootfs
 mkdir -p rootfs
 sleep 3
-if [ -f ${IMAGE_DIR}/rootfs.ext4 ]; then
-    if [ ! -f ${IMAGE_DIR}/backup_rootfs.ext4 ]; then
-        cp ${IMAGE_DIR}/rootfs.ext4 ${IMAGE_DIR}/backup_rootfs.ext4
+if [ -f ${ROOTFS_DIR}/rootfs.ext4 ]; then
+    if [ ! -f ${ROOTFS_DIR}/backup_rootfs.ext4 ]; then
+        cp ${ROOTFS_DIR}/rootfs.ext4 ${ROOTFS_DIR}/backup_rootfs.ext4
     fi
-    sudo mount -o loop ${IMAGE_DIR}/rootfs.ext4 rootfs
-elif [ -f ${IMAGE_DIR}/rootfs.qcow2 ]; then
-    if [ ! -f ${IMAGE_DIR}/backup_rootfs.qcow2 ]; then
-        cp ${IMAGE_DIR}/rootfs.qcow2 ${IMAGE_DIR}/backup_rootfs.qcow2
+    sudo mount -o loop ${ROOTFS_DIR}/rootfs.ext4 rootfs
+elif [ -f ${ROOTFS_DIR}/rootfs.qcow2 ]; then
+    if [ ! -f ${ROOTFS_DIR}/backup_rootfs.qcow2 ]; then
+        cp ${ROOTFS_DIR}/rootfs.qcow2 ${ROOTFS_DIR}/backup_rootfs.qcow2
     fi
-    sudo guestmount -a ${IMAGE_DIR}/rootfs.qcow2 -m /dev/sda2 rootfs
+    sudo guestmount -a ${ROOTFS_DIR}/rootfs.qcow2 -m /dev/sda2 rootfs
 else
     echo "Error: rootfs not exists"
     exit 1
@@ -50,11 +50,11 @@ if [ -d "${INSTALL_DIR}/lib" ]; then
     sudo cp -r ${INSTALL_DIR}/lib/modules rootfs/lib/
 fi
 TS=$(date '+%Y%m%d%H%M%S' | sed 's/-//g')
-echo $TS >rootfs/root/deploy.info
-if [ -f ${IMAGE_DIR}/rootfs.ext4 ]; then
+#echo $TS >rootfs/root/deploy.info
+if [ -f ${ROOTFS_DIR}/rootfs.ext4 ]; then
     sudo umount rootfs
     sudo rm -r -f rootfs
-elif [ -f ${IMAGE_DIR}/rootfs.qcow2 ]; then
+elif [ -f ${ROOTFS_DIR}/rootfs.qcow2 ]; then
     sudo guestunmount rootfs
     sudo rm -r -f rootfs
 else
@@ -62,4 +62,3 @@ else
     exit 1
 fi
 echo "success replace rootfs"
-ls -lh ${IMAGE_DIR}
